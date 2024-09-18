@@ -1,5 +1,1 @@
-Django>=3.2,<5.0
-gunicorn
-sqlite3  # Ensure SQLite is included if it's your database for CI/CD
-pytest  # If you are using pytest for testing
-pytest-django  # If you are using pytest with Django
+Django
