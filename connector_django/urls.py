@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from instruments import views
+from logs import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('instruments/', views.say_hello),
+    path('logs/', views.show_logs)
 ]
