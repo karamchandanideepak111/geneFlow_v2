@@ -21,7 +21,7 @@ from logs import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('instruments/', inst_views.say_hello),
+    path('instruments/', inst_views.index),
     path('', include('mainapp.urls')),
     # path('logs/', views.show_logs)
 ]
