@@ -17,11 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from instruments import views as inst_views
-from logs import views
+from logs import views as logs_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('instruments/', inst_views.index),
     path('', include('mainapp.urls')),
+    path('logs/', logs_views.index)
     # path('logs/', views.show_logs)
 ]
