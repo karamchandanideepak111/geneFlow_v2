@@ -2,7 +2,25 @@
 {% extends 'index.html' %}
 
 {% block bodycontent %}
-        <h2 class="mb-4">Instruments</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <h2 class="mb-4">Instruments</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Vendor</th>
+                <th>Version</th>
+                <th>Folder Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for instrument in instruments %}
+                <tr>
+                    <td>{{ instrument.instrument_name }}</td>
+                    <td>{{ instrument.vendor }}</td>
+                    <td>{{ instrument.version }}</td>
+                    <td>{{ instrument.folder_location }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
