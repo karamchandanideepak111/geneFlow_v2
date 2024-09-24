@@ -43,7 +43,7 @@ jobs:
         ssh-private-key: ${{ secrets.EC2_SSH }}  # Use the SSH key stored in GitHub secrets
     - name: Deploy to EC2
       run: |
-        ssh -T StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           set -e
           # Make sure python, git, and pip are available
           which python3 || sudo yum install python3 -y  # For Amazon Linux
