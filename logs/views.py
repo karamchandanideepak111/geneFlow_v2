@@ -12,7 +12,8 @@ def fetch_logs_data():
         host='connectordb.ckdztmjxvi1u.us-east-2.rds.amazonaws.com',
         user='admin',
         password='passconn09',
-        database='geneflow'
+        database='geneflow',
+        port=3310
     )
 
     cursor = connection.cursor(dictionary=True)
