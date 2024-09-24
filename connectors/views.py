@@ -18,7 +18,7 @@ def fetch_conn_data():
 
     cursor = connection.cursor(dictionary=True)
 
-    cursor.execute("SELECT connector_id,connector_name,ckey,instrument_name,version,status FROM geneflow.connDB as c JOIN geneflow.instrumentDB AS i ON c.instrument_id = i.instrument_id;")
+    cursor.execute("SELECT * FROM geneflow.connDB as c JOIN geneflow.instrumentDB AS i ON c.instrument_id = i.instrument_id;")
     rows = cursor.fetchall()
 
     cursor.close()
