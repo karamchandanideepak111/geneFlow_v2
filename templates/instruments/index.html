@@ -1,8 +1,22 @@
 <!-- Extends base.html -->
 {% extends 'index.html' %}
-
+{% comment %} <style>
+    .dark-background {
+        background-color: #010101; /* Darker background color */
+        color: #fff; /* White text color for better contrast */
+      }
+</style> {% endcomment %}
 {% block bodycontent %}
-    <h2 class="mb-4">Instruments</h2>
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="mb-0">Instruments</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <button type="button" id="newButton" class="btn btn-primary btn-md" data-toggle="modal" data-target="#formModal">
+                <i class="fas fa-plug"></i> Register Connector
+            </button>
+        </div>
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -23,4 +37,32 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Modal -->
+    <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="formModalLabel">Register Connector</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="connectorName">Connector Name</label>
+                            <input type="text" class="form-control dark-background" id="connectorName" placeholder="Enter connector name">
+                        </div>
+                        <div class="form-group">
+                            <label for="connectorType">Connector Type</label>
+                            <input type="text" class="form-control dark-background" id="connectorType" placeholder="Enter connector type">
+                        </div>
+                        <!-- Add more form fields as needed -->
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
