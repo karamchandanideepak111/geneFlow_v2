@@ -1,38 +1,38 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import HttpResponse
 import mysql.connector
 import json
+import conn_details
 
-def fetch_instrument_data():
-    # Establish a connection to the MySQL database
+dbdetails = conn_details.get_details()
+
+def fetch_conn_data():
     connection = mysql.connector.connect(
-        host='connectordb.ckdztmjxvi1u.us-east-2.rds.amazonaws.com',
-        user='admin',
-        password='passconn09',
-        database='geneflow'
+        host=dbdetails['host'],
+        user=dbdetails['user'],
+        password=dbdetails['password'],
+        database=dbdetails['database'],
+        port=dbdetails['port']
     )
 
     cursor = connection.cursor(dictionary=True)
 
-    # Execute the query to fetch data from the instrumentDB table
-    cursor.execute("SELECT * FROM instrumentDB")
-
-    # Fetch all rows from the executed query
+    cursor.execute("SELECT connector_id,connector_name,ckey,instrument_name,version,status FROM geneflow.connDB as c JOIN geneflow.instrumentDB AS i ON c.instrument_id = i.instrument_id;")
     rows = cursor.fetchall()
 
-    # Close the cursor and connection
     cursor.close()
     connection.close()
 
-    # Convert the rows to JSON format
-    return json.dumps(rows, indent=4)
+    return json.dumps(rows, indent=4, default=str)
 
 # Create your views here.
 def index(request):
-    # json_data = fetch_instrument_data()
-    # instruments = json.loads(json_data)
+    json_data = fetch_conn_data()
+    connectors = json.loads(json_data)
+    print(connectors)
     context = {
         'current_page': 'connectors',
-        # 'instruments': instruments
+        'connectors': connectors
     }
     return render(request, 'connectors/index.html', context)

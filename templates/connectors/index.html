@@ -2,6 +2,85 @@
 {% extends 'index.html' %}
 
 {% block bodycontent %}
-<h2 class="mb-4">Connectors</h2>
-    
+<div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <h2 class="mb-0">Connectors</h2>
+        </div>
+        <div class="col-md-6 text-right">
+            <button type="button" id="newButton" class="btn btn-primary btn-md" data-toggle="modal" data-target="#formModal">
+                <i class="fas fa-plug"></i> Register Connector
+            </button>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Connector Name</th>
+                <th>Instrument Name</th>
+                <th>Instrument Version</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for connector in connectors %}
+                <tr>
+                    <td>{{ connector.connector_name }}</td>
+                    <td>{{ connector.instrument_name }}</td>
+                    <td>{{ connector.version }}</td>
+                    <td>{% if connector.status == '0' %}
+                        Active
+                        {% else %}
+                            InActive
+                        {% endif %}
+                        </td>
+                    <td>
+                        {% if connector.status == '0' %}
+                            <button class='btn btn-primary'>Edit</button>
+                            <button class='btn btn-danger'>Delete</button>
+                        {% else %}
+                            <button class='btn btn-primary'>Edit</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Modal -->
+    <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="formModalLabel">Register Instrument</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="connectorName">Instrument Name</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="instrumentName" placeholder="Enter Instrument Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="connectorType">Vendor</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="instrumentType" placeholder="Vendor Name">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label for="connectorType">Vendor</label>
+                                <input type="text" class="form-control dark-background border border-dark" id="connectorType" placeholder="Enter Instrument Version">
+                            </div>
+                        </div>
+                            <label for="connectorType">Vendor</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="connectorType" placeholder="Enter Folder Location">
+                        </div>
+                        <!-- Add more form fields as needed -->
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
