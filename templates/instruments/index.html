@@ -13,7 +13,7 @@
         </div>
         <div class="col-md-6 text-right">
             <button type="button" id="newButton" class="btn btn-primary btn-md" data-toggle="modal" data-target="#formModal">
-                <i class="fas fa-plug"></i> Register Connector
+                <i class="fas fa-plug"></i> Register Instrument
             </button>
         </div>
     </div>
@@ -43,7 +43,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="formModalLabel">Register Connector</h5>
+                    <h5 class="modal-title" id="formModalLabel">Register Instrument</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -51,12 +51,21 @@
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label for="connectorName">Connector Name</label>
-                            <input type="text" class="form-control dark-background" id="connectorName" placeholder="Enter connector name">
+                            <label for="connectorName">Instrument Name</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="instrumentName" placeholder="Enter Instrument Name">
                         </div>
                         <div class="form-group">
-                            <label for="connectorType">Connector Type</label>
-                            <input type="text" class="form-control dark-background" id="connectorType" placeholder="Enter connector type">
+                            <label for="connectorType">Vendor</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="instrumentType" placeholder="Vendor Name">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label for="connectorType">Vendor</label>
+                                <input type="text" class="form-control dark-background border border-dark" id="connectorType" placeholder="Enter Instrument Version">
+                            </div>
+                        </div>
+                            <label for="connectorType">Vendor</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="connectorType" placeholder="Enter Folder Location">
                         </div>
                         <!-- Add more form fields as needed -->
                         <button type="submit" class="btn btn-primary">Submit</button>
