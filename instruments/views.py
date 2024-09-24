@@ -2,15 +2,18 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import mysql.connector
 import json
+import conn_details
+
+dbdetails = conn_details.get_details()
 
 def fetch_instrument_data():
     # Establish a connection to the MySQL database
     connection = mysql.connector.connect(
-        host='connectordb.ckdztmjxvi1u.us-east-2.rds.amazonaws.com',
-        user='admin',
-        password='passconn09',
-        database='geneflow',
-        port=3310
+        host=dbdetails['host'],
+        user=dbdetails['user'],
+        password=dbdetails['password'],
+        database=dbdetails['database'],
+        port=dbdetails['port']
     )
 
     cursor = connection.cursor(dictionary=True)
