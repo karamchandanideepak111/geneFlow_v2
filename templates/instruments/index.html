@@ -25,6 +25,7 @@
                 <th>Version</th>
                 <th>Folder Location</th>
                 <th>Category</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -35,6 +36,7 @@
                     <td>{{ instrument.version }}</td>
                     <td>{{ instrument.folder_location }}</td>
                     <td>{{ instrument.category }}</td>
+                    <td><button class='btn btn-danger'>Delete</button></td>
                 </tr>
             {% endfor %}
         </tbody>

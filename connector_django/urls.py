@@ -18,12 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from instruments import views as inst_views
 from logs import views as logs_views
-from connectors import views as conn_views
 
 urlpatterns = [
     path('', include('mainapp.urls')),
     path('admin/', admin.site.urls),
-    path('instruments/', inst_views.index),
+    path('instruments/', include('instruments.urls')),
     path('logs/', logs_views.index),
-    path('connectors/', conn_views.index)
+    path('connectors/', include('connectors.urls'))
 ]

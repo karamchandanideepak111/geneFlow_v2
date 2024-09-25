@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import JsonResponse
 import mysql.connector
 import json
 import conn_details
@@ -40,3 +40,9 @@ def index(request):
         'instruments': instruments
     }
     return render(request, 'instruments/index.html', context)
+
+# New view to return instrument data as JSON
+def instruments_data(request):
+    instruments = json.loads(fetch_instrument_data())
+    print(type(instruments))
+    return JsonResponse(instruments, safe=False)

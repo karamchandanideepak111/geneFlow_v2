@@ -1,12 +1,6 @@
 <!-- Extends base.html -->
 {% extends 'index.html' %}
-{% block headcontent %}
-<style>
-    .copied {
-        color: green;
-    }
-</style>
-{% endblock %}
+
 {% block bodycontent %}
 <div class="row align-items-center mb-4">
         <div class="col-md-6">
@@ -30,28 +24,32 @@
         </thead>
         <tbody>
             {% for connector in connectors %}
-                <tr>
-                    <td>{{ connector.connector_name }}</td>
-                    <td>{{ connector.instrument_name }}</td>
-                    <td>{{ connector.version }}</td>
-                    <td>
-                        {% if connector.status == '0' %}
-                            Inactive
-                        {% else %}
-                            Active
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if connector.status == '0' %}
-                            <button class='btn btn-primary'>Edit</button>
-                            <button class='btn btn-danger'>Delete</button>
-                            <button class='btn btn-info' data-toggle="modal" data-target="#viewModal" onclick="viewDetails('{{ connector.connector_name }}', '{{ connector.instrument_name }}', '{{ connector.version }}', '{{ connector.status }}', '{{ connector.ckey }}')">View</button>
-                        {% else %}
-                            <button class='btn btn-primary'>Edit</button>
-                            <button class='btn btn-info' data-toggle="modal" data-target="#viewModal" onclick="viewDetails('{{ connector.connector_name }}', '{{ connector.instrument_name }}', '{{ connector.version }}', '{{ connector.status }}', '{{ connector.ckey }}')">View</button>
-                        {% endif %}
-                    </td>
-                </tr>
+            <tr>
+                <td>{{ connector.connector_name }}</td>
+                <td>{{ connector.instrument_name }}</td>
+                <td>{{ connector.version }}</td>
+                <td>
+                    {% if connector.status == '0' %}
+                        Inactive
+                    {% else %}
+                        Active
+                    {% endif %}
+                </td>
+                <td>
+                    {% if connector.status == '0' %}
+                        <button class='btn btn-primary' data-toggle="modal" data-target="#editModal" 
+                            onclick="editDetails({{ connector|safe }})">Edit</button>
+                        <button class='btn btn-danger'>Delete</button>
+                        <button class='btn btn-info' data-toggle="modal" data-target="#viewModal" 
+                            onclick="viewDetails({{ connector|safe }})">View</button>
+                    {% else %}
+                        <button class='btn btn-primary' data-toggle="modal" data-target="#editModal" 
+                            onclick="editDetails({{ connector|safe }})">Edit</button>
+                        <button class='btn btn-info' data-toggle="modal" data-target="#viewModal" 
+                            onclick="viewDetails({{ connector|safe }})">View</button>
+                    {% endif %}
+                </td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
@@ -61,30 +59,24 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="formModalLabel">Register Instrument</h5>
+                    <h5 class="modal-title" id="formModalLabel">Register Connector</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="registerForm" action="/register/" method="POST">
+                        {% csrf_token %}
                         <div class="form-group">
-                            <label for="connectorName">Instrument Name</label>
-                            <input type="text" class="form-control dark-background border border-dark" id="instrumentName" placeholder="Enter Instrument Name">
+                            <label for="instrumentDropdown">Select Instrument</label>
+                            <select class="form-control dark-background border border-dark" id="instrumentDropdown" name="instrument_id">
+                                <option value="" disabled selected>Select an Instrument</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="connectorType">Vendor</label>
-                            <input type="text" class="form-control dark-background border border-dark" id="instrumentType" placeholder="Vendor Name">
+                            <label for="connectorType">Connector Name</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="connectorType" name="connector_name" placeholder="Enter Connector Type">
                         </div>
-                        <div class="form-group">
-                            <label for="connectorType">Vendor</label>
-                            <input type="text" class="form-control dark-background border border-dark" id="connectorType" placeholder="Enter Instrument Version">
-                        </div>
-                        <div class="form-group">
-                            <label for="connectorType">Vendor</label>
-                            <input type="text" class="form-control dark-background border border-dark" id="connectorType" placeholder="Enter Folder Location">
-                        </div>
-                        <!-- Add more form fields as needed -->
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
@@ -116,14 +108,63 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- Modal for Editing Connector -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Connector</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm" method="POST" action="/connectors/update/">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="editInstrumentID">Instrument ID</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editInstrumentID"  readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="editConnectorName">Connector Name</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editConnectorName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editInstrumentName">Instrument Name</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editInstrumentName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editVersion">Version</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editVersion">
+                        </div>
+                        <div class="form-group">
+                            <label for="editStatus">Status</label>
+                            <select class="form-control dark-background border border-dark" id="editStatus">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                        <input type="hidden" id="editConnectorKey">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional: Add a spinner -->
+    <div id="loadingSpinner" class="spinner-border text-primary" role="status" style="display:none;">
+        <span class="sr-only">Loading...</span>
+    </div>
+
     <script>
-        function viewDetails(connectorName, instrumentName, version, status,ckey) {
-            document.getElementById('viewConnectorName').innerText = connectorName;
-            document.getElementById('viewConnectorKey').innerText = ckey;
-            document.getElementById('viewInstrumentName').innerText = instrumentName;
-            document.getElementById('viewInstrumentVersion').innerText = version;
-            document.getElementById('viewStatus').innerText = status == '0' ? 'Inactive' : 'Active';
+        function viewDetails(connector) {
+            document.getElementById('viewConnectorName').innerText = connector.connector_name;
+            document.getElementById('viewConnectorKey').innerText = connector.ckey;
+            document.getElementById('viewInstrumentName').innerText = connector.instrument_name;
+            document.getElementById('viewInstrumentVersion').innerText = connector.version;
+            document.getElementById('viewStatus').innerText = connector.status == '0' ? 'Inactive' : 'Active';
         }
         function copyToClipboard(elementId, buttonId) {
             var copyText = document.getElementById(elementId).innerText;
@@ -149,6 +190,167 @@
             // Remove the temporary textarea element
             document.body.removeChild(tempTextarea);
         }
+
+        function editDetails(connector) {
+            document.getElementById('editInstrumentID').value = connector.instrument_id;
+            document.getElementById('editConnectorName').value = connector.connector_name;
+            document.getElementById('editInstrumentName').value = connector.instrument_name;
+            document.getElementById('editVersion').value = connector.version;
+            document.getElementById('editStatus').value = connector.status;
+            document.getElementById('editConnectorKey').value = connector.ckey;
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent the form from submitting normally
         
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const spinner = document.getElementById('loadingSpinner');
+        
+            // Disable button and show spinner or change button text
+            submitButton.disabled = true;
+            submitButton.textContent = "Processing...";
+            if (spinner) {
+                spinner.style.display = 'inline-block';  // Show the spinner
+            }
+        
+            const connectorKey = document.getElementById('editConnectorKey').value;
+            const connectorName = document.getElementById('editConnectorName').value;
+            const instrumentName = document.getElementById('editInstrumentName').value;
+            const status = document.getElementById('editStatus').value;
+            const version = document.getElementById('editVersion').value;
+        
+            // Send the data as JSON via AJAX
+            fetch('/connectors/update/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    connector_key: connectorKey,
+                    connector_name: connectorName,
+                    instrument_name: instrumentName,
+                    status: status,
+                    version: version
+                })
+            }).then(response => {
+                if (response.ok) {
+                    alert('Update successful');
+                    // Handle success: reload the page or close the modal
+                    window.location.reload();  // Reload the page after success
+                } else {
+                    alert('Update failed');
+                    // Handle failure: you can optionally enable the button back
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing the request.');
+            }).finally(() => {
+                // Re-enable the button and hide the spinner after request is completed
+                submitButton.disabled = false;
+                submitButton.textContent = "Save Changes";
+                if (spinner) {
+                    spinner.style.display = 'none';  // Hide the spinner
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch instruments when the modal is opened
+            $('#formModal').on('show.bs.modal', function() {
+                const instrumentDropdown = document.getElementById('instrumentDropdown');
+                
+                // Clear existing options
+                instrumentDropdown.innerHTML = '<option value="" disabled selected>Select an Instrument</option>';
+                
+                // Fetch instruments from the API endpoint
+                fetch('/instruments/getinst/')
+                    .then(response => {
+                        // Check if response is okay (status in the range 200-299)
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Check if data is an array
+                        if (!Array.isArray(data)) {
+                            throw new TypeError('Expected an array but got ' + typeof data);
+                        }
+        
+                        // Loop through the data and create options
+                        data.forEach(instrument => {
+                            const optionText = `${instrument.vendor} - ${instrument.instrument_name} - ${instrument.version}`;
+                            const option = document.createElement('option');
+                            option.value = instrument.instrument_id;  // Assuming the instrument has an 'id' field
+                            option.textContent = optionText;
+                            instrumentDropdown.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('error:', error);
+                    });
+            });
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent the form from submitting normally
+    
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            const spinner = document.getElementById('loadingSpinner');
+    
+            // Disable button and show spinner or change button text
+            submitButton.disabled = true;
+            submitButton.textContent = "Processing...";
+            if (spinner) {
+                spinner.style.display = 'inline-block';  // Show the spinner
+            }
+    
+            const instrumentId = document.getElementById('instrumentDropdown').value;
+            const connectorName = document.getElementById('connectorType').value;
+    
+            // Check if an instrument is selected
+            if (!instrumentId) {
+                alert("Please select an instrument.");
+                submitButton.disabled = false;
+                submitButton.textContent = "Submit";
+                if (spinner) {
+                    spinner.style.display = 'none';  // Hide the spinner
+                }
+                return;
+            }
+    
+            // Send the data as JSON via AJAX
+            fetch('/connectors/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    instrument_id: instrumentId,
+                    connector_name: connectorName
+                })
+            }).then(response => {
+                if (response.ok) {
+                    alert('Registration successful');
+                    // Handle success: reload the page or close the modal
+                    window.location.reload();  // Reload the page after success
+                } else {
+                    alert('Registration failed');
+                    // Handle failure: you can optionally enable the button back
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing the request.');
+            }).finally(() => {
+                // Re-enable the button and hide the spinner after request is completed
+                submitButton.disabled = false;
+                submitButton.textContent = "Submit";
+                if (spinner) {
+                    spinner.style.display = 'none';  // Hide the spinner
+                }
+            });
+        });
     </script>
 {% endblock %}
