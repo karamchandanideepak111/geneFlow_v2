@@ -46,10 +46,10 @@ jobs:
         ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           set -e
           # Make sure python, git, and pip are available
-          which python3 || sudo yum install python3 -y  # For Amazon Linux
+          which python3.10 || sudo yum install python3.10 -y  # For Amazon Linux
           which git || sudo yum install git -y
-          which pip3 || sudo yum install python3-pip -y
-          python3 -m pip install --upgrade pip
+          which pip3 || sudo yum install python3.10-pip -y
+          python3.10 -m pip install --upgrade pip
           cd /home/ec2-user
           # Add GitHub to known_hosts to avoid host key verification issues
           ssh-keyscan github.com >> ~/.ssh/known_hosts
@@ -61,7 +61,7 @@ jobs:
           cd geneFlow_v2
           git config pull.rebase false  # merge
           git pull origin Abi  # Pull the latest code from the branch
-          source venv/bin/activate || python3 -m venv venv && source venv/bin/activate  # Create venv if it doesn't exist
+          source venv/bin/activate || python3.10 -m venv venv && source venv/bin/activate  # Create venv if it doesn't exist
           pip install -r requirements.txt  # Install any new dependencies
           python manage.py migrate  # Apply migrations
          
