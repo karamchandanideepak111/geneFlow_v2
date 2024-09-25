@@ -39,7 +39,7 @@
                     {% if connector.status == '0' %}
                         <button class='btn btn-primary' data-toggle="modal" data-target="#editModal" 
                             onclick="editDetails({{ connector|safe }})">Edit</button>
-                        <button class='btn btn-danger'>Delete</button>
+                        <button class='btn btn-danger' data-connector-id="{{ connector.connector_id }}" onclick="confirmDelete(this)">Delete</button>
                         <button class='btn btn-info' data-toggle="modal" data-target="#viewModal" 
                             onclick="viewDetails({{ connector|safe }})">View</button>
                     {% else %}
@@ -166,6 +166,7 @@
             document.getElementById('viewInstrumentVersion').innerText = connector.version;
             document.getElementById('viewStatus').innerText = connector.status == '0' ? 'Inactive' : 'Active';
         }
+
         function copyToClipboard(elementId, buttonId) {
             var copyText = document.getElementById(elementId).innerText;
             console.log("Text to copy:", copyText); // Debugging line
@@ -352,5 +353,43 @@
                 }
             });
         });
+
+        function confirmDelete(button) {
+            // Get the connector ID from the data attribute
+            let connectorId = button.getAttribute('data-connector-id');
+
+            // Confirm the deletion
+            let confirmation = confirm("Are you sure you want to delete this connector? This action cannot be undone.");
+
+            if (confirmation) {
+                // If confirmed, send the delete request
+                fetch('/connectors/delete/', {
+                    method: 'POST',  // Assuming you're using POST for deletion
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'  // Ensure CSRF token is included
+                    },
+                    body: JSON.stringify({
+                        'connector_id': connectorId
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to delete the connector.');
+                    }
+                })
+                .then(data => {
+                    alert('Connector deleted successfully!');
+                    // Optionally, remove the deleted connector from the UI
+                    // button.closest('tr').remove();  // If you want to remove the row in a table
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the connector.');
+                });
+            }
+        }
     </script>
 {% endblock %}

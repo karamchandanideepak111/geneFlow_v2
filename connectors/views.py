@@ -112,3 +112,37 @@ def register_connector(request):
         'connectors': connectors
     }
     return render(request, 'connectors/index.html', context)
+
+def delete_connector(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        # Create a connection to the MySQL database
+        connection = mysql.connector.connect(
+            host=dbdetails['host'],
+            user=dbdetails['user'],
+            password=dbdetails['password'],
+            database=dbdetails['database'],
+            port=dbdetails['port']
+        )
+
+        cursor = connection.cursor()
+        try:
+            # Execute the stored procedure for deletion
+            delete_query = "delete FROM geneflow.connDB where connector_id = %s;"  # Adjust the stored procedure name as necessary
+            cursor.execute(delete_query, (data['connector_id'],))
+
+            # Commit the changes
+            connection.commit()
+        except mysql.connector.Error as e:
+            print(e)
+            return JsonResponse({'error': str(e)}, status=500)
+        json_data = fetch_conn_data()
+        connectors = json.loads(json_data)
+        context = {
+            'current_page': 'connectors',
+            'connectors': connectors
+        }
+        cursor.close()
+        connection.close()
+        return render(request, 'connectors/index.html', context)
