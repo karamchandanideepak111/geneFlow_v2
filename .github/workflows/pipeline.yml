@@ -45,43 +45,22 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           set -e
-          # Ensure python3.10, git, and pip are installed
+          # Make sure python, git, and pip are available
           which python3.10 || sudo yum install python3.10 -y  # For Amazon Linux
           which git || sudo yum install git -y
           which pip3 || sudo yum install python3.10-pip -y
-          
-          # Upgrade pip
           python3.10 -m pip install --upgrade pip
-          
           cd /home/ec2-user
-          
           # Add GitHub to known_hosts to avoid host key verification issues
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-          
           # Check if the directory is a git repo; if not, clone it
           if [ ! -d "geneFlow_v2/.git" ]; then
-            git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
+           git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
           fi
 
           cd geneFlow_v2
-          
-          # Set Git configuration to avoid rebase conflicts
           git config pull.rebase false  # merge
-          
-          # Pull the latest code from the specified branch
-          git pull origin Abi
-          
-          # Check if the virtual environment exists, otherwise create it
-          if [ ! -d "venv" ]; then
-            python3.10 -m venv venv
-          fi
-          
-          # Activate the virtual environment
-          source venv/bin/activate
-          
-          # Install dependencies from requirements.txt
-          pip install -r requirements.txt
-          
-          # Apply database migrations
-          python manage.py migrate
-        EOF
+          git pull origin Abi  # Pull the latest code from the branch
+          source venv/bin/activate || python3.10 -m venv venv && source venv/bin/activate  # Create venv if it doesn't exist
+          pip install -r requirements.txt  # Install any new dependencies
+          python manage.py migrate  # Apply migrations
