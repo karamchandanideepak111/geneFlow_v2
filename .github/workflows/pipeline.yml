@@ -52,7 +52,7 @@ jobs:
           sudo yum groupinstall "Development Tools" -y
 
           # Install dependencies for Python 3.12
-          sudo yum install -y gcc openssl-devel bzip2-devel libffi-devel
+          #sudo yum install -y gcc openssl-devel bzip2-devel libffi-devel
 
           # Download and install Python 3.12
           cd /usr/src
@@ -64,7 +64,7 @@ jobs:
 
           # Set Python 3.12 as the default version
           sudo ln -s /usr/local/bin/python3.12 /usr/bin/python3
-          sudo ln -s /usr/local/bin/pip3.12 /usr/bin/pip3
+          #sudo ln -s /usr/local/bin/pip3.12 /usr/bin/pip3
 
           # Install pip if not available
           sudo python3 -m ensurepip --upgrade
