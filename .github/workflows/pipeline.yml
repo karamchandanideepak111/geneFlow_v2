@@ -15,7 +15,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.8'  # Specify your Python version
+        python-version: '3.9'  # Specify your Python version
 
     - name: Install dependencies
       run: |
@@ -47,15 +47,15 @@ jobs:
         ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           set -e  # Exit on error
 
-          # Enable Python 3.8 module and install required packages
-          sudo dnf module enable python:3.8 -y
-          sudo dnf install -y python3.8 git
+          # Enable Python 3.9 module and install required packages
+          sudo dnf module enable python:3.9 -y
+          sudo dnf install -y python3.9 git
 
           # Install pip for Python 3
-          sudo dnf install -y python3.8-pip
+          sudo dnf install -y python3.9-pip
 
           # Upgrade pip
-          python3.8 -m pip install --upgrade pip
+          python3.9 -m pip install --upgrade pip
 
           cd /home/ec2-user
 
@@ -76,7 +76,7 @@ jobs:
 
           # Set up the virtual environment if it doesn't exist, activate it
           if [ ! -d "venv" ]; then
-            python3.8 -m venv venv
+            python3.9 -m venv venv
           fi
           source venv/bin/activate
 
