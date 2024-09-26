@@ -4,63 +4,86 @@ on:
   push:
     branches:
       - Abi
- 
- 
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
- 
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10' # or whichever version you're using
- 
+        python-version: '3.10'  # Specify your Python version
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
- 
+
     - name: Apply migrations
       run: |
         python manage.py migrate
- 
+
     - name: Run tests
       run: |
         python manage.py test
- 
+
   deploy:
     runs-on: ubuntu-latest
-    needs: test  # Run deployment only if the test job is successful
+    needs: test  # This ensures deployment runs only after the test job is successful
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.3  # Set up SSH agent
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3  # Set up the SSH agent
       with:
-        ssh-private-key: ${{ secrets.EC2_SSH }}  # Use the SSH key stored in GitHub secrets
+        ssh-private-key: ${{ secrets.EC2_SSH }}  # Use the SSH private key stored in GitHub secrets
+
     - name: Deploy to EC2
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-          set -e
-          # Make sure python, git, and pip are available
-          which python || sudo yum install python -y  # For Amazon Linux
-          which git || sudo yum install git -y
-          which pip || sudo yum install python-pip -y
-          python -m pip install --upgrade pip
+          set -e  # Exit on error
+
+          # Ensure python3.10, git, and pip3 are available
+          sudo yum install python3.10 -y || true  # For Amazon Linux, only installs if needed
+          sudo yum install git -y || true
+          sudo yum install python3.10-pip -y || true
+
+          # Ensure pip is up to date
+          python3.10 -m pip install --upgrade pip
+
           cd /home/ec2-user
+
           # Add GitHub to known_hosts to avoid host key verification issues
           ssh-keyscan github.com >> ~/.ssh/known_hosts
-          # Check if the directory is a git repo; if not, clone it
+
+          # Clone the repo if it doesn't exist, else pull the latest changes
           if [ ! -d "geneFlow_v2/.git" ]; then
-           git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
+            git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
           fi
 
           cd geneFlow_v2
-          git config pull.rebase false  # merge
-          git pull origin Abi  # Pull the latest code from the branch
-          source venv/bin/activate || python -m venv venv && source venv/bin/activate  # Create venv if it doesn't exist
-          pip install -r requirements.txt  # Install any new dependencies
-          python manage.py migrate  # Apply migrations
+
+          # Ensure we're on the correct branch
+          git checkout Abi
+          git config pull.rebase false  # Merge strategy
+          git pull origin Abi  # Pull the latest code
+
+          # Set up the virtual environment if it doesn't exist, activate it
+          if [ ! -d "venv" ]; then
+            python3.10 -m venv venv
+          fi
+          source venv/bin/activate
+
+          # Install/update dependencies
+          pip install -r requirements.txt
+
+          # Apply any database migrations
+          python manage.py migrate
+
+          # Optional: Restart the server (if applicable, depending on how you're running it)
+          # sudo systemctl restart <your_service_name>
+        EOF
