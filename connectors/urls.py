@@ -6,4 +6,5 @@ urlpatterns = [
     path('update/', views.update_connector),
     path('register/', views.register_connector),
     path('delete/', views.delete_connector),
+    path('validate', views.validate),
 ]

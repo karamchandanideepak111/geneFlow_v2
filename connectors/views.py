@@ -6,6 +6,7 @@ import mysql.connector
 import json
 import conn_details
 import uuid
+import pandas as pd
 
 dbdetails = conn_details.get_details()
 
@@ -70,7 +71,7 @@ def fetch_conn_data():
 def index(request):
     json_data = fetch_conn_data()
     connectors = json.loads(json_data)
-    # print(connectors)
+    
     context = {
         'current_page': 'connectors',
         'connectors': connectors
@@ -128,8 +129,8 @@ def delete_connector(request):
 
         cursor = connection.cursor()
         try:
-            # Execute the stored procedure for deletion
-            delete_query = "delete FROM geneflow.connDB where connector_id = %s;"  # Adjust the stored procedure name as necessary
+            # Execute the delete query
+            delete_query = "DELETE FROM geneflow.connDB WHERE connector_id = %s;"
             cursor.execute(delete_query, (data['connector_id'],))
 
             # Commit the changes
@@ -137,12 +138,57 @@ def delete_connector(request):
         except mysql.connector.Error as e:
             print(e)
             return JsonResponse({'error': str(e)}, status=500)
-        json_data = fetch_conn_data()
-        connectors = json.loads(json_data)
-        context = {
-            'current_page': 'connectors',
-            'connectors': connectors
-        }
-        cursor.close()
-        connection.close()
-        return render(request, 'connectors/index.html', context)
+        finally:
+            cursor.close()
+            connection.close()
+
+        # Return a success response
+        return JsonResponse({'message': 'Connector deleted successfully!'})
+
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
+@csrf_exempt
+def validate(request):
+    print("Request POST:", request.body)
+    if request.method == 'POST':
+        try:
+            event_body = json.loads(request.body)
+            key = event_body["key"]
+
+            connection = mysql.connector.connect(
+                host=dbdetails['host'],
+                user=dbdetails['user'],
+                password=dbdetails['password'],
+                database=dbdetails['database'],
+                port=dbdetails['port']
+            )
+
+            cursor = connection.cursor(dictionary=True)
+
+            # Query to fetch data from connDB and instrumentDB
+            conn_query = """
+                SELECT * FROM geneflow.connDB as c 
+                JOIN geneflow.instrumentDB as i 
+                ON c.instrument_id = i.instrument_id 
+                WHERE c.ckey = %s
+            """
+            cursor.execute(conn_query, (key,))
+            result = cursor.fetchall()
+
+            cursor.close()
+            connection.close()
+
+            # Convert the result to a DataFrame
+            if result:
+                matched_row = pd.DataFrame(result)
+                body = matched_row.to_json(orient="records")
+            else:
+                body = json.dumps({'exists': 'False'})
+
+            return JsonResponse({'statusCode': 200, 'body': body})
+        
+        except Exception as e:
+            print(e)
+            return JsonResponse({'statusCode': 500, 'error': str(e)})
+    return JsonResponse({'statusCode': 400, 'error': 'Invalid request method.'})
+
