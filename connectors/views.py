@@ -7,6 +7,14 @@ import json
 import conn_details
 import uuid
 import pandas as pd
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+import mysql.connector
+import base64
+import boto3
+import os
 
 dbdetails = conn_details.get_details()
 
@@ -192,3 +200,110 @@ def validate(request):
             return JsonResponse({'statusCode': 500, 'error': str(e)})
     return JsonResponse({'statusCode': 400, 'error': 'Invalid request method.'})
 
+s3_client = boto3.client('s3')
+bucket_name = 'geneflow001'
+
+@require_POST
+@csrf_exempt
+def upload_file(request):
+    try:
+        decoded_body = base64.b64decode(request.body).decode('utf-8')
+        form_data = json.loads(decoded_body)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+    try:
+        conn_id = form_data['body']['connector_id']
+        key = form_data['body']['key']
+        instru_id = form_data['body']['instrument_id']
+        ip = form_data['body']['ip']
+        timestamp = form_data['body']['timestamp']
+        hostname = form_data['body']['pc_name']
+
+        connection = mysql.connector.connect(
+            host=dbdetails['host'],
+            user=dbdetails['user'],
+            password=dbdetails['password'],
+            database=dbdetails['database'],
+            port=dbdetails['port']
+        )
+
+        cursor = connection.cursor(dictionary=True)
+
+        # Query to fetch data from connDB and instrumentDB
+        conn_query = """
+            SELECT * FROM geneflow.connDB as c 
+            JOIN geneflow.instrumentDB as i 
+            ON c.instrument_id = i.instrument_id 
+            WHERE c.connector_id = %s AND c.key = %s
+        """
+        cursor.execute(conn_query, (conn_id, key))
+        result = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        if not result:
+            return JsonResponse({'error': 'Invalid connector ID or key'}, status=400)
+
+        matched_row = pd.DataFrame(result)
+        location = matched_row['folder_location'].values[0]
+        instru_name = matched_row['instrument_name'].values[0]
+        instru_ver = matched_row['version'].values[0]
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+    try:
+        file_content = base64.b64decode(form_data['body']['file'])
+        org_filename = form_data['body']['filename']
+        temp_file_path = f"/tmp/{org_filename}"
+
+        with open(temp_file_path, 'wb') as f:
+            f.write(file_content)
+        f.close()
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+    try:
+        new_file_name = f"{conn_id}_{timestamp.replace(':', '-').replace(' ', '-')}_{instru_name}-{instru_ver}.{org_filename.split('.')[-1]}"
+        with open(temp_file_path, 'rb') as f:
+            s3_client.put_object(Bucket=bucket_name, Key=f"{location}/input/{new_file_name}", Body=f)
+        os.remove(temp_file_path)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+    try:
+        connection = mysql.connector.connect(
+            host=dbdetails['host'],
+            user=dbdetails['user'],
+            password=dbdetails['password'],
+            database=dbdetails['database'],
+            port=dbdetails['port']
+        )
+
+        cursor = connection.cursor()
+
+        # Insert log into the database
+        insert_log_query = """
+        INSERT INTO geneflow.logs (connector_id, instrument_name, instrument_version, ip_address, timestamp, org_filename, updated_filename, pc_name, status)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_log_query, (
+            conn_id,
+            instru_name,
+            instru_ver,
+            ip,
+            timestamp,
+            org_filename,
+            new_file_name,
+            hostname,
+            "Uploaded"
+        ))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return JsonResponse({'message': 'File successfully uploaded to S3!'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
