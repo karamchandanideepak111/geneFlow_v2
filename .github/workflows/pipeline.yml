@@ -47,13 +47,15 @@ jobs:
         ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           set -e  # Exit on error
 
-          # Ensure python3.10, git, and pip3 are available
-          sudo yum install python3.10 -y || true  # For Amazon Linux, only installs if needed
-          sudo yum install git -y || true
-          sudo yum install python3.10-pip -y || true
+          # Enable Python 3.10 module and install required packages
+          sudo dnf module enable python:3.10 -y
+          sudo dnf install -y python3 git
 
-          # Ensure pip is up to date
-          python3.10 -m pip install --upgrade pip
+          # Install pip for Python 3
+          sudo dnf install -y python3-pip
+
+          # Upgrade pip
+          python3 -m pip install --upgrade pip
 
           cd /home/ec2-user
 
@@ -74,7 +76,7 @@ jobs:
 
           # Set up the virtual environment if it doesn't exist, activate it
           if [ ! -d "venv" ]; then
-            python3.10 -m venv venv
+            python3 -m venv venv
           fi
           source venv/bin/activate
 
