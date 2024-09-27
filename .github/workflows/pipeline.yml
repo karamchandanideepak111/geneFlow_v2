@@ -48,8 +48,8 @@ jobs:
             set -e  # Exit immediately if a command exits with a non-zero status
 
             # Update and install necessary packages
-            sudo dnf update -y
-            sudo dnf install -y python3 git python3-pip
+            sudo yum update -y
+            sudo yum install -y python3 git python3-pip
 
             # Change to the appropriate directory
             cd /home/ec2-user
@@ -83,3 +83,4 @@ jobs:
             # Optional: Restart the server if necessary
             # sudo systemctl restart <your_service_name>
           EOF
+
