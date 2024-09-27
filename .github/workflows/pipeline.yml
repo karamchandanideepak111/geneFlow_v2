@@ -48,7 +48,7 @@ jobs:
             set -e  # Exit immediately if a command exits with a non-zero status
 
             # Ensure necessary packages are installed
-            sudo yum install -y python3 git python3-pip
+            sudo dnf install -y python3 git python3-pip
 
             # Change to the appropriate directory
             cd /home/ec2-user
@@ -78,7 +78,7 @@ jobs:
             
             # Apply migrations
             python manage.py migrate
-          
+            
             # Optional: Restart the server if necessary
             # sudo systemctl restart <your_service_name>
           EOF
