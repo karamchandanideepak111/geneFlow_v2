@@ -48,8 +48,8 @@ jobs:
             set -e  # Exit immediately if a command exits with a non-zero status
 
             # Update and install necessary packages
-            sudo yum update -y
-            sudo yum install -y python3 git python3-pip
+            #sudo yum update -y
+            #sudo yum install -y python3 git python3-pip
 
             # Change to the appropriate directory
             cd /home/ec2-user
