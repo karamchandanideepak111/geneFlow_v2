@@ -1,64 +1,84 @@
 name: Django CI/CD Pipeline
- 
+
 on:
   push:
     branches:
       - Abi
- 
- 
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
- 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10' # or whichever version you're using
- 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
- 
-    - name: Apply migrations
-      run: |
-        python manage.py migrate
- 
-    - name: Run tests
-      run: |
-        python manage.py test
- 
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'  # Specify your Python version
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Apply migrations
+        run: |
+          python manage.py migrate
+
+      - name: Run tests
+        run: |
+          python manage.py test
+
   deploy:
     runs-on: ubuntu-latest
     needs: test  # Run deployment only if the test job is successful
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.3  # Set up SSH agent
-      with:
-        ssh-private-key: ${{ secrets.EC2_SSH }}  # Use the SSH key stored in GitHub secrets
-    - name: Deploy to EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-          set -e
-          # Make sure python, git, and pip are available
-          which python3 || sudo yum install python3 -y  # For Amazon Linux
-          which git || sudo yum install git -y
-          which pip3 || sudo yum install python3-pip -y
-          cd /home/ec2-user
-          # Add GitHub to known_hosts to avoid host key verification issues
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          # Check if the directory is a git repo; if not, clone it
-          if [ ! -d "geneFlow_v2/.git" ]; then
-           git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
-          fi
-          cd geneFlow_v2
-          git config pull.rebase false  # merge
-          git pull origin Abi  # Pull the latest code from the branch
-          source venv/bin/activate || python3 -m venv venv && source venv/bin/activate  # Create venv if it doesn't exist
-          pip install -r requirements.txt  # Install any new dependencies
-          python manage.py migrate  # Apply migrations
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3  # Set up SSH agent
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH }}  # Use the SSH key stored in GitHub secrets
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e  # Exit immediately if a command exits with a non-zero status
+
+            # Ensure necessary packages are installed
+            sudo yum install -y python3 git python3-pip
+
+            # Change to the appropriate directory
+            cd /home/ec2-user
+
+            # Add GitHub to known_hosts to avoid host key verification issues
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+            # Check if the directory is a git repo; if not, clone it
+            if [ ! -d "geneFlow_v2/.git" ]; then
+              git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
+            fi
+            
+            cd geneFlow_v2
+            git config pull.rebase false  # Disable rebase
+            git pull origin Abi  # Pull the latest code from the branch
+
+            # Set up the virtual environment if it doesn't exist
+            if [ ! -d "venv" ]; then
+              python3 -m venv venv
+            fi
+            
+            source venv/bin/activate  # Activate venv
+            
+            # Upgrade pip and install dependencies
+            pip install --upgrade pip
+            pip install -r requirements.txt  # Install any new dependencies
+            
+            # Apply migrations
+            python manage.py migrate
+          
+            # Optional: Restart the server if necessary
+            # sudo systemctl restart <your_service_name>
+          EOF
