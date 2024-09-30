@@ -92,8 +92,8 @@ jobs:
             # Apply database migrations
             python manage.py migrate
 
-            #Run server
-            #python manage.py runserver
+            # Run server
+            python manage.py runserver
 
             # Optional: Restart the web server or application service if needed
             # sudo systemctl restart your-service-name
