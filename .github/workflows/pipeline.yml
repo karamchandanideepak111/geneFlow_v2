@@ -1,5 +1,3 @@
-3009
-
 name: Django CI/CD Pipeline
 
 on:
@@ -17,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # Specify your Python version
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
@@ -34,24 +32,24 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: test  # Run deployment only if the test job is successful
+    needs: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.3  # Set up SSH agent
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH }}  # Use the SSH key stored in GitHub secrets
+          ssh-private-key: ${{ secrets.EC2_SSH }}
 
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
             set -e  # Exit immediately if a command exits with a non-zero status
 
-            # Update and install necessary packages
-            #sudo yum update -y
-            #sudo yum install -y python3.12 git python3.12-pip
+            # Update and install necessary packages (uncomment if needed)
+            # sudo yum update -y
+            # sudo yum install -y python3.10 git python3.10-pip
 
             # Change to the appropriate directory
             cd /home/ubuntu
@@ -70,7 +68,7 @@ jobs:
 
             # Set up the virtual environment if it doesn't exist
             if [ ! -d "venv" ]; then
-              python3.12 -m venv venv
+              python3.10 -m venv venv
             fi
             
             source venv/bin/activate  # Activate venv
