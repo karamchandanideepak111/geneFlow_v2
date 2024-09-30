@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'instruments',
     'logs',
     'connectors',
-    'parsers',
+    # 'parsers',
 ]
 
 MIDDLEWARE = [
