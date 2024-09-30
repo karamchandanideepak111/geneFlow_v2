@@ -1,11 +1,6 @@
 <!-- Extends base.html -->
 {% extends 'index.html' %}
-{% comment %} <style>
-    .dark-background {
-        background-color: #010101; /* Darker background color */
-        color: #fff; /* White text color for better contrast */
-      }
-</style> {% endcomment %}
+
 {% block bodycontent %}
     <div class="row align-items-center mb-4">
         <div class="col-md-6">
@@ -17,6 +12,7 @@
             </button>
         </div>
     </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -36,13 +32,17 @@
                     <td>{{ instrument.version }}</td>
                     <td>{{ instrument.folder_location }}</td>
                     <td>{{ instrument.category }}</td>
-                    <td><button class='btn btn-danger'>Delete</button></td>
+                    <td>
+                        <button class='btn btn-primary' data-toggle="modal" data-target="#editModal" 
+                            onclick="editInstrument({{ instrument|safe }})">Edit</button>
+                        <button class='btn btn-danger' data-instrument-id="{{ instrument.instrument_id }}" onclick="confirmDelete(this)">Delete</button>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <!-- Modal -->
+    <!-- Register Instrument Modal -->
     <div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -53,29 +53,186 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="registerForm" action="/instruments/register/" method="POST">
+                        {% csrf_token %}
                         <div class="form-group">
-                            <label for="connectorName">Instrument Name</label>
-                            <input type="text" class="form-control dark-background border border-dark" id="instrumentName" placeholder="Enter Instrument Name">
-                        </div>
-                        <div class="form-group">
-                            <label for="connectorType">Vendor</label>
-                            <input type="text" class="form-control dark-background border border-dark" id="instrumentType" placeholder="Vendor Name">
+                            <label for="instrumentName">Instrument Name</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="instrumentName" name="instrument_name" placeholder="Enter Instrument Name">
                         </div>
                         <div class="form-group">
-                            <div class="form-group">
-                                <label for="connectorType">Vendor</label>
-                                <input type="text" class="form-control dark-background border border-dark" id="connectorType" placeholder="Enter Instrument Version">
-                            </div>
+                            <label for="vendor">Vendor</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="vendor" name="vendor" placeholder="Vendor Name">
                         </div>
-                            <label for="connectorType">Vendor</label>
-                            <input type="text" class="form-control dark-background border border-dark" id="connectorType" placeholder="Enter Folder Location">
+                        <div class="form-group">
+                            <label for="version">Version</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="version" name="version" placeholder="Enter Instrument Version">
                         </div>
-                        <!-- Add more form fields as needed -->
+                        <div class="form-group">
+                            <label for="folderLocation">Folder Location</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="folderLocation" name="folder_location" placeholder="Enter Folder Location">
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="category" name="category" placeholder="Enter Category">
+                        </div>
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Edit Instrument Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Instrument</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm" method="POST" action="/instruments/update/">
+                        {% csrf_token %}
+                        <input type="hidden" id="editInstrumentId">
+                        <div class="form-group">
+                            <label for="editInstrumentName">Instrument Name</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editInstrumentName" name="instrument_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="editVendor">Vendor</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editVendor" name="vendor">
+                        </div>
+                        <div class="form-group">
+                            <label for="editVersion">Version</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editVersion" name="version">
+                        </div>
+                        <div class="form-group">
+                            <label for="editFolderLocation">Folder Location</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editFolderLocation" name="folder_location">
+                        </div>
+                        <div class="form-group">
+                            <label for="editCategory">Category</label>
+                            <input type="text" class="form-control dark-background border border-dark" id="editCategory" name="category">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function editInstrument(instrument) {
+            document.getElementById('editInstrumentId').value = instrument.instrument_id;
+            document.getElementById('editInstrumentName').value = instrument.instrument_name;
+            document.getElementById('editVendor').value = instrument.vendor;
+            document.getElementById('editVersion').value = instrument.version;
+            document.getElementById('editFolderLocation').value = instrument.folder_location;
+            document.getElementById('editCategory').value = instrument.category;
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent normal form submission
+
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = "Processing...";
+
+            const instrumentId = document.getElementById('editInstrumentId').value;
+            const instrumentName = document.getElementById('editInstrumentName').value;
+            const vendor = document.getElementById('editVendor').value;
+            const version = document.getElementById('editVersion').value;
+            const folderLocation = document.getElementById('editFolderLocation').value;
+            const category = document.getElementById('editCategory').value;
+
+            fetch('/instruments/update/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    instrument_id: instrumentId,
+                    instrument_name: instrumentName,
+                    vendor: vendor,
+                    version: version,
+                    folder_location: folderLocation,
+                    category: category
+                })
+            }).then(response => {
+                if (response.ok) {
+                    alert('Update successful');
+                    window.location.reload();  // Reload page
+                } else {
+                    alert('Update failed');
+                }
+            }).finally(() => {
+                submitButton.disabled = false;
+                submitButton.textContent = "Save Changes";
+            });
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = "Processing...";
+
+            const instrumentName = document.getElementById('instrumentName').value;
+            const vendor = document.getElementById('vendor').value;
+            const version = document.getElementById('version').value;
+            const folderLocation = document.getElementById('folderLocation').value;
+            const category = document.getElementById('category').value;
+
+            fetch('/instruments/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    instrument_name: instrumentName,
+                    vendor: vendor,
+                    version: version,
+                    folder_location: folderLocation,
+                    category: category
+                })
+            }).then(response => {
+                if (response.ok) {
+                    alert('Registration successful');
+                    window.location.reload();
+                } else {
+                    alert('Registration failed');
+                }
+            }).finally(() => {
+                submitButton.disabled = false;
+                submitButton.textContent = "Submit";
+            });
+        });
+
+        function confirmDelete(button) {
+            const instrumentId = button.getAttribute('data-instrument-id');
+            const confirmation = confirm("Are you sure you want to delete this instrument?");
+            if (confirmation) {
+                fetch('/instruments/delete/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ instrument_id: instrumentId })
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Instrument deleted successfully');
+                        button.closest('tr').remove();  // Remove row from table
+                    } else {
+                        alert('Failed to delete instrument');
+                    }
+                });
+            }
+        }
+    </script>
 {% endblock %}

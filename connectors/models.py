@@ -18,7 +18,6 @@ class DatabaseConnection:
         return connection
 
 class ConnectorData:
-    
     @staticmethod
     def fetch_conn_data():
         connection = DatabaseConnection.get_connection()

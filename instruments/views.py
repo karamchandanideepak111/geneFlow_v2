@@ -3,6 +3,8 @@ from django.http import JsonResponse
 import mysql.connector
 import json
 import conn_details
+from django.views.decorators.csrf import csrf_exempt
+from .models import InstrumentData
 
 dbdetails = conn_details.get_details()
 
@@ -46,3 +48,32 @@ def instruments_data(request):
     instruments = json.loads(fetch_instrument_data())
     print(type(instruments))
     return JsonResponse(instruments, safe=False)
+
+dbdetails = conn_details.get_details()
+
+@csrf_exempt
+def create_instrument(request):
+    if request.method == 'POST':
+        try:
+            # Parse the JSON body of the request
+            data = json.loads(request.body)
+
+            # Call the model method to insert data into the database
+            json_data = InstrumentData.create_instrument(data)
+            instruments = json.loads(json_data)
+
+            # Return the newly created instruments and success response
+            return JsonResponse({
+                'message': 'Instrument created successfully',
+                'data': instruments
+            }, status=201)
+
+        except Exception as e:
+            # Return an error response if something goes wrong
+            return JsonResponse({
+                'message': 'Failed to create instrument',
+                'error': str(e)
+            }, status=400)
+
+    # If not a POST request, return a method not allowed response
+    return JsonResponse({'message': 'Method not allowed'}, status=405)
