@@ -5,3 +5,4 @@ sqlparse==0.5.1
 tzdata==2024.2
 uuid==1.30
 pandas==2.2.2
+boto3
