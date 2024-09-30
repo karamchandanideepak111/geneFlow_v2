@@ -67,19 +67,18 @@ jobs:
               echo "Installing python3.12-venv..."
               sudo apt update
               sudo apt install -y python3.12-venv
-              
+            fi  # Closing the if statement
+
             # Check if virtual environment exists, if so remove it and create a new one
             if [ -d "venv" ]; then
-                echo "Removing existing virtual environment."
-                rm -rf venv  # Remove existing virtual environment
-
+              echo "Removing existing virtual environment."
+              rm -rf venv  # Remove existing virtual environment
             fi
             
             # Create a new virtual environment
             python3.12 -m venv venv  # Create virtual environment
             echo "Virtual environment created."
             
-
             # List the directory contents for debugging
             ls -la
 
