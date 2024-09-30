@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.10'  # Specify your Python version
 
       - name: Install dependencies
         run: |
@@ -32,54 +32,51 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: test
+    needs: test  # Run deployment only if the test job is successful
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.3
+        uses: webfactory/ssh-agent@v0.5.3  # Set up SSH agent
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH }}
+          ssh-private-key: ${{ secrets.EC2_SSH }}  # Use the SSH key stored in GitHub secrets
 
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-            set -e  # Exit immediately if a command exits with a non-zero status
+            set -e  # Exit on any error
 
-            # Update and install necessary packages (uncomment if needed)
-            # sudo yum update -y
-            # sudo yum install -y python3.10 git python3.10-pip
+            # Move to deployment directory
+            cd /home/ubuntu/geneFlow_v2 || exit
 
-            # Change to the appropriate directory
-            cd /home/ubuntu
-
-            # Add GitHub to known_hosts to avoid host key verification issues
+            # Add GitHub to known_hosts to avoid SSH key verification prompts
             ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-            # Check if the directory is a git repo; if not, clone it
-            if [ ! -d "geneFlow_v2/.git" ]; then
-              git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
-            fi
-            
-            cd geneFlow_v2
-            git config pull.rebase false  # Disable rebase
-            git pull origin Abi  # Pull the latest code from the branch
+            # Pull the latest changes
+            git pull origin Abi
 
-            # Set up the virtual environment if it doesn't exist
-            if [ ! -d "venv" ]; then
-              python3.10 -m venv venv
+            # Check if Python 3.12 is installed
+            if ! command -v python3.12 &> /dev/null; then
+              echo "Python 3.12 is not installed. Please install it before running this script."
+              exit 1
             fi
-            
-            source venv/bin/activate  # Activate venv
-            
+
+            # Check if virtual environment exists, if not create it
+            if [ ! -d "venv" ]; then
+              python3.12 -m venv venv  # Create virtual environment
+            fi
+
+            # Activate virtual environment
+            source venv/bin/activate
+
             # Upgrade pip and install dependencies
             pip install --upgrade pip
-            pip install -r requirements.txt  # Install any new dependencies
-            
-            # Apply migrations
+            pip install -r requirements.txt
+
+            # Apply database migrations
             python manage.py migrate
-            
-            # Optional: Restart the server if necessary
-            # sudo systemctl restart <your_service_name>
+
+            # Optional: Restart the web server or application service if needed
+            # sudo systemctl restart your-service-name
           EOF
