@@ -1,0 +1,93 @@
+{
+	"metadata": {
+		"Inst_Name": "ViCell-1",
+		"INST_ID": "EQ123456",
+		"Instrument_Version": "Vi-CELL XR 2.04",
+		"RECEIVER": "FILE",
+		"User": ""
+	},
+	"Results": [
+		{
+			"Date & Time": "04/12/2024 09:51:40",
+			"Sample ID": "TFR-GAA S8 P7D4 1B",
+			"Images": {
+				"Value": 50,
+				"Unit": ""
+			},
+			"Total cells": {
+				"Value": 6721,
+				"Unit": ""
+			},
+			"Viable cells": {
+				"Value": 6680,
+				"Unit": ""
+			},
+			"Nonviable cells": {
+				"Value": 41,
+				"Unit": ""
+			},
+			"Viability": {
+				"Value": 99.39,
+				"Unit": "%"
+			},
+			"Total cells / ml": {
+				"Value": 6.4126,
+				"Unit": "x 10^6"
+			},
+			"Total viable cells / ml": {
+				"Value": 6.3735,
+				"Unit": "x 10^6"
+			},
+			"Average diameter": {
+				"Value": 15.4141,
+				"Unit": "microns"
+			},
+			"Average circularity": {
+				"Value": 0.8599,
+				"Unit": ""
+			},
+			"Average cells / image": {
+				"Value": 134.42,
+				"Unit": ""
+			},
+			"Microns/pixel ratio": {
+				"Value": 0.6889,
+				"Unit": ""
+			},
+			"Total diameter sum": {
+				"Value": 103597.875,
+				"Unit": ""
+			},
+			"Total circularity sum": {
+				"Value": 4682.803711,
+				"Unit": ""
+			},
+			"Background intensity sum": {
+				"Value": 10193,
+				"Unit": ""
+			}
+		}
+	],
+	"Settings": {
+		"Cell type": "CHO 0913",
+		"Threshold (%)": 75,
+		"Center threshold (%)": 95,
+		"Minimum diameter (microns)": 7.0,
+		"Maximum diameter (microns)": 35.0,
+		"Minimum center size": 12.0,
+		"Minimum circularity": 0.0,
+		"Frames": 50,
+		"Dilution": 1.0,
+		"Focus parameter": 60,
+		"Sample flush cycles": 3,
+		"Trypan blue mixing cycles": 3,
+		"Internal Dilution": 2.18,
+		"Decluster degree": 6,
+		"Number of bins": 140,
+		"Field of view (microns)": "831 x 611",
+		"Sample depth (microns)": 90.0,
+		"Probe volume (ml x 10^-6)": 45.69669,
+		"Image size": "1280 x 960",
+		"Comment": ""
+	}
+}
