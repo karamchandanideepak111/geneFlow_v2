@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # Specify your Python version
+          python-version: '3.12'  # Specify your Python version
 
       - name: Install dependencies
         run: |
@@ -48,7 +48,8 @@ jobs:
             set -e  # Exit on any error
 
             # Move to deployment directory
-            cd /home/ubuntu/geneFlow_v2 || exit
+            #cd /home/ubuntu/geneFlow_v2 || exit
+            cd /home/ubuntu
 
             # Add GitHub to known_hosts to avoid SSH key verification prompts
             ssh-keyscan github.com >> ~/.ssh/known_hosts
