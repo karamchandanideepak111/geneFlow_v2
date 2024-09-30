@@ -62,13 +62,17 @@ jobs:
               exit 1
             fi
 
-            # Check if virtual environment exists, if not create it
-            if [ ! -d "venv" ]; then
-              python3.12 -m venv venv  # Create virtual environment
-              echo "Virtual environment created."
-            else
-              echo "Virtual environment already exists."
+            # Check if virtual environment exists, if so remove it and create a new one
+            if [ -d "venv" ]; then
+                echo "Removing existing virtual environment."
+                rm -rf venv  # Remove existing virtual environment
+
             fi
+            
+            # Create a new virtual environment
+            python3.12 -m venv venv  # Create virtual environment
+            echo "Virtual environment created."
+            
 
             # List the directory contents for debugging
             ls -la
