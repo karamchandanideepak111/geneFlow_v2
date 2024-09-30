@@ -1,18 +1,15 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-import mysql.connector
 import json
-import conn_details
-import uuid
-import pandas as pd
 import base64
 import boto3
 import os
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from .models import ConnectorData
+from datetime import datetime
 
 def index(request):
     # Fetching the data using the static method from the model
@@ -27,6 +24,7 @@ def index(request):
 
     return render(request, 'connectors/index.html', context)
 
+@csrf_exempt
 def register_connector(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -77,10 +75,19 @@ def validate(request):
             return JsonResponse({'statusCode': 500, 'error': str(e)})
     return JsonResponse({'statusCode': 400, 'error': 'Invalid request method.'})
 
+# Initialize the S3 client with your credentials and region from settings
+s3_client = boto3.client(
+    's3',
+    aws_access_key_id='AKIAXJDVAFSV3NCPPGGV',
+    aws_secret_access_key='X953zBPgwki97tz+sAMOvGn0W2tmxK/SctlKmYY+',
+    region_name='us-east-2'
+)
+
+# Name of the S3 bucket
+S3_BUCKET_NAME = 'geneflow001'
+
 @csrf_exempt
 def upload_file(request):
-    dbdetails = conn_details.get_details()
-    print(len(request.body))
     if len(request.body) != 0:
         data_str = request.body.decode('utf-8')
         data_json = json.loads(data_str)
@@ -88,106 +95,79 @@ def upload_file(request):
             print("Form data received:")
             for key, value in data_json['body'].items():
                 print(f"{key}: {value}")
-            
-            # Extract file content and decode from base64
-            file_content_base64 = data_json['body']['file']
-            file_content = base64.b64decode(file_content_base64)
-            
-            # Get the filename
-            filename = data_json['body']['filename']
-            
-            # Define a custom path
-            custom_path = os.path.join('custom_uploads', filename)
-            
-            # Save the file
-            file_name = default_storage.save(custom_path, ContentFile(file_content))
-            
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-        
-        try:
-            print("Form data received:")
+
+            # Extract data from the request body
             conn_id = data_json['body']['connector_id']
             key = data_json['body']['key']
             instru_id = data_json['body']['instrument_id']
             ip = data_json['body']['ip']
-            timestamp = data_json['body']['timestamp']
+            timestamp_str = data_json['body']['timestamp']
             hostname = data_json['body']['pc_name']
+
+            # Convert timestamp to MySQL-friendly format
+            timestamp_obj = datetime.strptime(timestamp_str, '%d/%m/%y %H:%M:%S')
+            mysql_timestamp = timestamp_obj.strftime('%Y-%m-%d %H:%M:%S')
             print("All data extracted successfully")
 
-            connection = mysql.connector.connect(
-                host=dbdetails['host'],
-                user=dbdetails['user'],
-                password=dbdetails['password'],
-                database=dbdetails['database'],
-                port=dbdetails['port']
-            )
-            print("Connection established successfully")
-            cursor = connection.cursor(dictionary=True)
+            # Fetch data from the database
+            matched_row = ConnectorData.fetch_connector_and_instrument_data(conn_id, key)
 
-            print("Querying the database")
-
-            # Query to fetch data from connDB and instrumentDB
-            conn_query = """
-                SELECT * FROM geneflow.connDB as c 
-                JOIN geneflow.instrumentDB as i 
-                ON c.instrument_id = i.instrument_id 
-                WHERE c.connector_id = %s AND c.ckey = %s
-            """
-
-            print("Executing the query")
-
-            cursor.execute(conn_query, (conn_id, key))
-            print("Query executed successfully")
-            result = cursor.fetchall()
-
-            
-
-            print(result)
-
-            if not result:
+            if matched_row.empty:
                 return JsonResponse({'error': 'Invalid connector ID or key'}, status=400)
 
-            matched_row = pd.DataFrame(result)
+            # Extract necessary details
             location = matched_row['folder_location'].values[0]
             instru_name = matched_row['instrument_name'].values[0]
             instru_ver = matched_row['version'].values[0]
 
-            insert_query = """
-                call insert_logs (connector_id, instrument_id, ip, pc_name, timestamp, status, file_name, location, instrument_name, version)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-            cursor.execute(insert_query, (conn_id, key, instru_id, ip, timestamp, hostname, file_name, location, instru_name, instru_ver))
-            connection.commit()
+            # Extract file content and decode from base64
+            file_content_base64 = data_json['body']['file']
+            file_content = base64.b64decode(file_content_base64)
+            org_filename = data_json['body']['filename']
 
-            cursor.close()
-            connection.close()
-            
-            return JsonResponse({'message': 'File uploaded successfully', 'file_name': file_name}, status=201)
-        
+            # Generate new file name
+            new_file_name = f"{conn_id}_{mysql_timestamp.replace(' ', '-')}_{instru_name}-{instru_ver}.{org_filename.split('.')[-1]}"
+            new_file_name = new_file_name.replace(':', '-')
+            print(f"New file name: {new_file_name}")
+
+            # Define a custom path for local storage
+            custom_path = os.path.join('Upload_files', new_file_name)
+
+            # Save the file locally first
+            default_storage.save(custom_path, ContentFile(file_content))
+
+            # Upload the file to the S3 bucket
+            try:
+                s3_key = f"{location}/input/{new_file_name}"
+                
+                # Upload the file to S3
+                s3_client.put_object(
+                    Bucket=S3_BUCKET_NAME,
+                    Key=s3_key,
+                    Body=file_content
+                )
+
+                # File URL in S3
+                s3_url = f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key}"
+                print(f"File uploaded successfully to S3: {s3_url}")
+
+                # Delete the local file after successful upload to S3
+                os.remove(custom_path)
+                print(f"File {custom_path} deleted successfully from local storage.")
+
+            except Exception as e:
+                os.remove(custom_path)
+                print(f"File {custom_path} deleted successfully from local storage.")
+                print(f"Failed to upload file to S3: {e}")
+                return JsonResponse({'error': f"Failed to upload file to S3: {str(e)}"}, status=500)
+
+            print("Inserting log into the database")
+            ConnectorData.insert_log(conn_id, instru_id, ip, hostname, mysql_timestamp, 'Uploaded', org_filename, new_file_name)
+            print("Log inserted successfully")
+
+            return JsonResponse({'message': 'File uploaded successfully', 'file_url': s3_url}, status=200)
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'status': 'Empty'}, status=201)
-
-
-'''
-
-
-
-    # views.py
-from django.shortcuts import render
-from .models import fetch_conn_data
-
-def index(request):
-    json_data = fetch_conn_data()
-    connectors = json.loads(json_data)
-    
-    context = {
-        'current_page': 'connectors',
-        'connectors': connectors
-    }
-    return render(request, 'connectors/index.html', context)
-
-
-'''

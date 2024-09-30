@@ -1,16 +1,13 @@
-from django.db import models
+from django.conf import settings
 import mysql.connector
-import conn_details
 import json
 import uuid
 import pandas as pd
 
-dbdetails = conn_details.get_details()
-
-class ConnectorData:
-
+class DatabaseConnection:
     @staticmethod
-    def fetch_conn_data():
+    def get_connection():
+        dbdetails = settings.DB_DETAILS  # Assuming you have DB details in settings
         connection = mysql.connector.connect(
             host=dbdetails['host'],
             user=dbdetails['user'],
@@ -18,10 +15,17 @@ class ConnectorData:
             database=dbdetails['database'],
             port=dbdetails['port']
         )
+        return connection
+
+class ConnectorData:
+    
+    @staticmethod
+    def fetch_conn_data():
+        connection = DatabaseConnection.get_connection()
         cursor = connection.cursor(dictionary=True)
         cursor.execute("""
             SELECT * 
-            FROM geneflow.connDB as c 
+            FROM geneflow.connDB AS c 
             JOIN geneflow.instrumentDB AS i 
             ON c.instrument_id = i.instrument_id;
         """)
@@ -32,13 +36,7 @@ class ConnectorData:
 
     @staticmethod
     def register_connector(data):
-        connection = mysql.connector.connect(
-            host=dbdetails['host'],
-            user=dbdetails['user'],
-            password=dbdetails['password'],
-            database=dbdetails['database'],
-            port=dbdetails['port']
-        )
+        connection = DatabaseConnection.get_connection()
         cursor = connection.cursor()
         insert_query = "CALL insert_conn(%s, %s, %s)"
         connector_key = str(uuid.uuid4())
@@ -54,13 +52,7 @@ class ConnectorData:
 
     @staticmethod
     def update_connector(data):
-        connection = mysql.connector.connect(
-            host=dbdetails['host'],
-            user=dbdetails['user'],
-            password=dbdetails['password'],
-            database=dbdetails['database'],
-            port=dbdetails['port']
-        )
+        connection = DatabaseConnection.get_connection()
         cursor = connection.cursor()
         update_query = """
             UPDATE geneflow.connDB 
@@ -78,13 +70,7 @@ class ConnectorData:
 
     @staticmethod
     def delete_connector(connector_id):
-        connection = mysql.connector.connect(
-            host=dbdetails['host'],
-            user=dbdetails['user'],
-            password=dbdetails['password'],
-            database=dbdetails['database'],
-            port=dbdetails['port']
-        )
+        connection = DatabaseConnection.get_connection()
         cursor = connection.cursor()
         delete_query = "DELETE FROM geneflow.connDB WHERE connector_id = %s"
         cursor.execute(delete_query, (connector_id,))
@@ -94,17 +80,11 @@ class ConnectorData:
 
     @staticmethod
     def validate_connector(key):
-        connection = mysql.connector.connect(
-            host=dbdetails['host'],
-            user=dbdetails['user'],
-            password=dbdetails['password'],
-            database=dbdetails['database'],
-            port=dbdetails['port']
-        )
+        connection = DatabaseConnection.get_connection()
         cursor = connection.cursor(dictionary=True)
         conn_query = """
-            SELECT * FROM geneflow.connDB as c 
-            JOIN geneflow.instrumentDB as i 
+            SELECT * FROM geneflow.connDB AS c 
+            JOIN geneflow.instrumentDB AS i 
             ON c.instrument_id = i.instrument_id 
             WHERE c.ckey = %s
         """
@@ -113,3 +93,34 @@ class ConnectorData:
         cursor.close()
         connection.close()
         return pd.DataFrame(result) if result else None
+
+    @staticmethod
+    def fetch_connector_and_instrument_data(conn_id, key):
+        connection = DatabaseConnection.get_connection()
+        cursor = connection.cursor(dictionary=True)
+        conn_query = """
+            SELECT * FROM geneflow.connDB AS c 
+            JOIN geneflow.instrumentDB AS i 
+            ON c.instrument_id = i.instrument_id 
+            WHERE c.connector_id = %s AND c.ckey = %s
+        """
+        cursor.execute(conn_query, (conn_id, key))
+        result = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        return pd.DataFrame(result)
+
+    @staticmethod
+    def insert_log(conn_id, instru_id, ip, hostname, timestamp, status, org_filename, new_file_name):
+        connection = DatabaseConnection.get_connection()
+        cursor = connection.cursor()
+        insert_query = """
+            CALL insert_logs (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, (
+            conn_id, instru_id, ip, hostname, timestamp, 
+            status, org_filename, new_file_name
+        ))
+        connection.commit()
+        cursor.close()
+        connection.close()

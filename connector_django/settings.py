@@ -85,6 +85,14 @@ DATABASES = {
     }
 }
 
+DB_DETAILS = {
+    'host':'connectordb.ckdztmjxvi1u.us-east-2.rds.amazonaws.com',
+    'user':'admin',
+    'password':'passconn09',
+    'database':'geneflow',
+    'port':3310
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

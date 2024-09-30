@@ -17,7 +17,7 @@ def fetch_logs_data():
 
     cursor = connection.cursor(dictionary=True)
 
-    cursor.execute("SELECT DISTINCT log_id,connector_id, instrument_name,version,ip_address,pc_name,timestamp,status,org_filename,updated_filename FROM geneflow.logsDB AS l JOIN geneflow.instrumentDB AS i ON l.instrument_id = i.instrument_id;")
+    cursor.execute("SELECT DISTINCT log_id,connector_id, instrument_name,version,ip_address,pc_name,timestamp,status,org_filename,updated_filename FROM geneflow.logsDB AS l JOIN geneflow.instrumentDB AS i ON l.instrument_id = i.instrument_id order by log_id desc;")
     rows = cursor.fetchall()
 
     cursor.close()
