@@ -6,3 +6,6 @@ tzdata==2024.2
 uuid==1.30
 pandas==2.2.2
 boto3
+openpyxl
+PyMuPDF
+PyPDF2
