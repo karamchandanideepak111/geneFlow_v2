@@ -26,45 +26,6 @@ from django.core.files.storage import default_storage
 
 dbdetails = conn_details.get_details()
 
-@require_POST
-@csrf_exempt
-def update_connector(request):
-    data = json.loads(request.body)
-    connector_key = data.get('connector_key')
-    
-    try:
-        connection = mysql.connector.connect(
-            host=dbdetails['host'],
-            user=dbdetails['user'],
-            password=dbdetails['password'],
-            database=dbdetails['database'],
-            port=dbdetails['port']
-        )
-
-        cursor = connection.cursor()
-
-        # Update the connector in the database
-        update_query = """
-        UPDATE geneflow.connDB 
-        SET connector_name = %s, status = %s
-        WHERE ckey = %s
-        """
-        cursor.execute(update_query, (
-            data.get('connector_name'),
-            data.get('status'),
-            connector_key
-        ))
-
-        connection.commit()
-        cursor.close()
-        connection.close()
-
-        return JsonResponse({'success': True})
-    except mysql.connector.Error as err:
-        return JsonResponse({'success': False, 'error': str(err)}, status=500)
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
 def fetch_conn_data():
     connection = mysql.connector.connect(
         host=dbdetails['host'],
@@ -129,6 +90,45 @@ def register_connector(request):
         'connectors': connectors
     }
     return render(request, 'connectors/index.html', context)
+
+@require_POST
+@csrf_exempt
+def update_connector(request):
+    data = json.loads(request.body)
+    connector_key = data.get('connector_key')
+    
+    try:
+        connection = mysql.connector.connect(
+            host=dbdetails['host'],
+            user=dbdetails['user'],
+            password=dbdetails['password'],
+            database=dbdetails['database'],
+            port=dbdetails['port']
+        )
+
+        cursor = connection.cursor()
+
+        # Update the connector in the database
+        update_query = """
+        UPDATE geneflow.connDB 
+        SET connector_name = %s, status = %s
+        WHERE ckey = %s
+        """
+        cursor.execute(update_query, (
+            data.get('connector_name'),
+            data.get('status'),
+            connector_key
+        ))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return JsonResponse({'success': True})
+    except mysql.connector.Error as err:
+        return JsonResponse({'success': False, 'error': str(err)}, status=500)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 def delete_connector(request):
     if request.method == 'POST':
@@ -308,59 +308,53 @@ def upload_file(request):
     else:
         return JsonResponse({'status': 'Empty'}, status=201)
 
-#     try:
-#         file_content = base64.b64decode(form_data['body']['file'])
-#         org_filename = form_data['body']['filename']
-#         temp_file_path = f"/tmp/{org_filename}"
 
-#         with open(temp_file_path, 'wb') as f:
-#             f.write(file_content)
-#         f.close()
-#     except Exception as e:
-#         return JsonResponse({'error': str(e)}, status=400)
+'''
+dbdetails = conn_details.get_details()
 
-#     try:
-#         new_file_name = f"{conn_id}_{timestamp.replace(':', '-').replace(' ', '-')}_{instru_name}-{instru_ver}.{org_filename.split('.')[-1]}"
-#         with open(temp_file_path, 'rb') as f:
-#             s3_client.put_object(Bucket=bucket_name, Key=f"{location}/input/{new_file_name}", Body=f)
-#         os.remove(temp_file_path)
-#     except Exception as e:
-#         return JsonResponse({'error': str(e)}, status=400)
+def fetch_conn_data():
+    connection = mysql.connector.connect(
+        host=dbdetails['host'],
+        user=dbdetails['user'],
+        password=dbdetails['password'],
+        database=dbdetails['database'],
+        port=dbdetails['port']
+    )
 
-#     try:
-#         connection = mysql.connector.connect(
-#             host=dbdetails['host'],
-#             user=dbdetails['user'],
-#             password=dbdetails['password'],
-#             database=dbdetails['database'],
-#             port=dbdetails['port']
-#         )
+    cursor = connection.cursor(dictionary=True)
 
-#         cursor = connection.cursor()
+    cursor.execute("SELECT * FROM geneflow.connDB as c JOIN geneflow.instrumentDB AS i ON c.instrument_id = i.instrument_id;")
+    rows = cursor.fetchall()
 
-#         # Insert log into the database
-#         insert_log_query = """
-#         INSERT INTO geneflow.logs (connector_id, instrument_name, instrument_version, ip_address, timestamp, org_filename, updated_filename, pc_name, status)
-#         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-#         """
-#         cursor.execute(insert_log_query, (
-#             conn_id,
-#             instru_name,
-#             instru_ver,
-#             ip,
-#             timestamp,
-#             org_filename,
-#             new_file_name,
-#             hostname,
-#             "Uploaded"
-#         ))
+    cursor.close()
+    connection.close()
 
-#         connection.commit()
-#         cursor.close()
-#         connection.close()
+    return json.dumps(rows, indent=4, default=str)
 
-#         return JsonResponse({'message': 'File successfully uploaded to S3!'}, status=200)
-#     except Exception as e:
-#         return JsonResponse({'error': str(e)}, status=500)
-    # else:
-    #     return JsonResponse({'error': 'Invalid request method'}, status=405)
+def index(request):
+    json_data = fetch_conn_data()
+    connectors = json.loads(json_data)
+    
+    context = {
+        'current_page': 'connectors',
+        'connectors': connectors
+    }
+    return render(request, 'connectors/index.html', context)
+
+
+    # views.py
+from django.shortcuts import render
+from .models import fetch_conn_data
+
+def index(request):
+    json_data = fetch_conn_data()
+    connectors = json.loads(json_data)
+    
+    context = {
+        'current_page': 'connectors',
+        'connectors': connectors
+    }
+    return render(request, 'connectors/index.html', context)
+
+
+'''
