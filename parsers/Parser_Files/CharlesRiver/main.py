@@ -1,7 +1,7 @@
-import charlesriver
+# import charlesriver
 
-path = "Data/09 Feb Endo Testing (1).pdf"
+# path = "Data/09 Feb Endo Testing (1).pdf"
 
-ob = charlesriver.endotoxin(path)
+# ob = charlesriver.endotoxin(path)
 
-print(ob.get_data())
+# print(ob.get_data())
