@@ -48,8 +48,7 @@ jobs:
             set -e  # Exit on any error
 
             # Move to deployment directory
-            #cd /home/ubuntu/geneFlow_v2 || exit
-            cd /home/ubuntu
+            cd /home/ubuntu/geneFlow_v2 || exit
 
             # Add GitHub to known_hosts to avoid SSH key verification prompts
             ssh-keyscan github.com >> ~/.ssh/known_hosts
