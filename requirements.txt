@@ -9,3 +9,6 @@ boto3
 openpyxl
 PyMuPDF
 PyPDF2
+Pillow
+perkinelmer
+roche
