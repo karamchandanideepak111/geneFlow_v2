@@ -62,6 +62,12 @@ jobs:
               exit 1
             fi
 
+            # Ensure python3.12-venv is installed
+            if ! dpkg -l | grep -q python3.12-venv; then
+              echo "Installing python3.12-venv..."
+              sudo apt update
+              sudo apt install -y python3.12-venv
+              
             # Check if virtual environment exists, if so remove it and create a new one
             if [ -d "venv" ]; then
                 echo "Removing existing virtual environment."
