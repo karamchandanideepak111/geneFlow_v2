@@ -1,0 +1,23 @@
+[
+    {
+        "Calibrator": {
+            "Lot": "C03633",
+            "ExpirationDate": "8/29/25",
+            "CalibrationTime": "3/25/24 7:33",
+            "CL1Temp": "27.1",
+            "CL2Temp": "27.1",
+            "RP1LongTemp": "27.1",
+            "RP1ShortTemp": "27.1",
+            "CL1Current": "203",
+            "CL2Current": "220",
+            "RP1LongCurrent": "397",
+            "RP1ShortCurrent": "397",
+            "CL1Factor": "0.00705",
+            "CL2Factor": "0.00704",
+            "RP1LongFactor": "0.00391",
+            "RP1ShortFactor": "0.11537",
+            "Result": "Pass",
+            "MachineSerialNo": "MAGPX15265701"
+        }
+    }
+]

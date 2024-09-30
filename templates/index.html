@@ -1,75 +1,80 @@
 <!doctype html>
 <html lang="en">
-  <head>
-  	<title>Sidebar 03</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	{% load static %}
-    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="{% static 'css/style.css' %}">
-		
-		
-
-  </head>
-  <body>
-		
+	<head>
+  		<title>GeneFlow</title>
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		{% load static %}
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    	<link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800,900" rel="stylesheet">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="{% static 'css/style.css' %}">
+		{% block headcontent %}
+		{% endblock %}
+  	</head>
+  	<body>	
 		<div class="wrapper d-flex align-items-stretch">
 			<nav id="sidebar" class="active">
 				<div class="custom-menu">
 					<button type="button" id="sidebarCollapse" class="btn btn-primary">
-	          <i class="fa fa-bars"></i>
-	          <span class="sr-only">Toggle Menu</span>
-	        </button>
-        </div>
-				<div class="p-4">
-		  		<h1><a href="index.html" class="logo">GeneFlow</a></h1>
-	        <ul class="list-unstyled components mb-5">
-	          <li class="active">
-	            <a href="#"><span class="fa fa-home mr-3"></span> Dashboard</a>
-	          </li>
-	          <li>
-	              <a href="#"><span class="fa fa-link mr-3"></span> Connectors</a>
-	          </li>
-	          <li>
-              <a href="#"><span class="fa fa-cogs mr-3"></span> Instruments</a>
-	          </li>
-	          <li>
-              <a href="#"><span class="fa fa-book mr-3"></span> View Logs</a>
-	          </li>
-	          <li>
-              <!-- <a href="#"><span class="fa fa-paper-plane mr-3"></span> Contact</a> -->
-	          </li>
-	        </ul>
+	        			<i class="fa fa-bars"></i>
+	        			<span class="sr-only">Toggle Menu</span>
+	        		</button>
+        		</div>
 
-	        <!-- <div class="mb-5">
+				
+				
+				<div class="p-4">
+		  			<h1><a href="/" class="logo">GeneFlow</a></h1>
+	        		<ul class="list-unstyled components mb-5">
+						<li class="{% if current_page == 'dashboard' %}active{% endif %}">
+							<a href="/"><span class="fa fa-home mr-3"></span> Dashboard</a>
+						</li>
+						<li class="{% if current_page == 'connectors' %}active{% endif %}">
+							<a href="/connectors"><span class="fa fa-link mr-3"></span> Connectors</a>
+						</li>
+						<li class="{% if current_page == 'instruments' %}active{% endif %}">
+							<a href="/instruments"><span class="fa fa-cogs mr-3"></span> Instruments</a>
+						</li>
+						<li class="{% if current_page == 'logs' %}active{% endif %}">
+							<a href="/logs"><span class="fa fa-book mr-3"></span> View Logs</a>
+						</li>
+						<li>
+							<!-- <a href="#"><span class="fa fa-paper-plane mr-3"></span> Contact</a> -->
+						</li>
+					</ul>
+
+					<!-- <div class="mb-5">
 						<h3 class="h6 mb-3">Subscribe for newsletter</h3>
 						<form action="#" class="subscribe-form">
-	            <div class="form-group d-flex">
-	            	<div class="icon"><span class="icon-paper-plane"></span></div>
-	              <input type="text" class="form-control" placeholder="Enter Email Address">
-	            </div>
-	          </form>
+							<div class="form-group d-flex">
+								<div class="icon"><span class="icon-paper-plane"></span></div>
+								<input type="text" class="form-control" placeholder="Enter Email Address">
+							</div>
+						</form>
 					</div> -->
+					<div class="footer">
+						<p>Under Development</p>
+					</div>
+	      		</div>
+    		</nav>
 
-	        <div class="footer">
-	        	<p>Hello</p>
-	        </div>
-		
-	      </div>
-    	</nav>
-
-        <!-- Page Content  -->
-      <div id="content" class="p-4 p-md-5 pt-5">
-        <h2 class="mb-4">Sidebar #03</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-      </div>
+			<!-- Page Content  -->
+			<div id="content" class="p-4 p-md-5 pt-5">
+				{% block bodycontent %}
+				<h2 class="mb-4">Dashboard</h2>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+				{% endblock %}
+			</div>
 		</div>
 
-    <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script src="{% static 'js/popper.js' %}"></script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
+		<script src="{% static 'js/jquery.min.js' %}"></script>
+		<script src="{% static 'js/popper.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/main.js' %}"></script>
+		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   </body>
 </html>

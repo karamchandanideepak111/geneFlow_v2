@@ -1,0 +1,64 @@
+{
+    "Results": [
+        {
+            "Date & Time": "04/01/2024 13:21:06",
+            "Sample ID": "GAA S8 P6D0 1B",
+            "Images": {
+                "Value": 50,
+                "Unit": ""
+            },
+            "Total cells": {
+                "Value": 606,
+                "Unit": ""
+            },
+            "Viable cells": {
+                "Value": 596,
+                "Unit": ""
+            },
+            "Nonviable cells": {
+                "Value": 10,
+                "Unit": ""
+            },
+            "Viability": {
+                "Value": 98.3498,
+                "Unit": "%"
+            },
+            "Total cells / ml": {
+                "Value": 0.5782,
+                "Unit": "x 10^6"
+            },
+            "Total viable cells / ml": {
+                "Value": 0.5687,
+                "Unit": "x 10^6"
+            },
+            "Average diameter": {
+                "Value": 14.8897,
+                "Unit": "microns"
+            },
+            "Average circularity": {
+                "Value": 0.8986,
+                "Unit": ""
+            },
+            "Average cells / image": {
+                "Value": 12.12,
+                "Unit": ""
+            },
+            "Microns/pixel ratio": {
+                "Value": 0.6889,
+                "Unit": ""
+            },
+            "Total diameter sum": {
+                "Value": 9023.15625,
+                "Unit": ""
+            },
+            "Total circularity sum": {
+                "Value": 469.054474,
+                "Unit": ""
+            },
+            "Background intensity sum": {
+                "Value": 10168,
+                "Unit": ""
+            }
+        }
+    ]
+}
