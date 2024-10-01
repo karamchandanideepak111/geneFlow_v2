@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'instruments',
     'logs',
     'connectors',
+    'testapp',
     # 'parsers',
 ]
 
