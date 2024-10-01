@@ -44,10 +44,15 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
             set -e  # Exit on any error
-            cd /home/ubuntu/geneFlow_v2 || exit
+            cd /home/ubuntu
 
             # Add GitHub to known_hosts to avoid SSH key verification prompts
             ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+            # Check if the directory is a git repo; if not, clone it
+            if [ ! -d "geneFlow_v2/.git" ]; then
+              git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
+            fi
 
             # Stash any unstaged changes
             #git stash push -m "Stashing changes before pull"
@@ -56,6 +61,10 @@ jobs:
             #git pull --rebase git@github.com:karamchandanideepak111/geneFlow_v2.git Abi
 
             # Pull the latest changes
+            cd geneFlow_v2
+
+            # Configure Git to handle pulls appropriately
+            git config pull.rebase true  # or false if you prefer merging
             git pull origin Abi
 
             # Check if Python 3.12 is installed
