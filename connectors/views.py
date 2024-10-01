@@ -126,7 +126,7 @@ def upload_file(request):
             org_filename = data_json['body']['filename']
 
             # Generate new file name
-            new_file_name = f"{conn_id}_{mysql_timestamp.replace(' ', '-')}_{instru_name}-{instru_ver}.{org_filename.split('.')[-1]}"
+            new_file_name = f"{conn_id}_{mysql_timestamp.replace(' ', '-')}_{instru_name}_{instru_ver}.{org_filename.split('.')[-1]}"
             new_file_name = new_file_name.replace(':', '-')
             print(f"New file name: {new_file_name}")
 
