@@ -40,6 +40,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH }}
 
+      - name: Check for merge conflicts
+        run: |
+          if git ls-files -u | grep -q '^[^ ]'; then
+            echo "Merge conflicts detected. Please resolve them before deploying."
+            exit 1
+          fi
+
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
