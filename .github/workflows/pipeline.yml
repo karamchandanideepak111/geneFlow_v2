@@ -97,7 +97,8 @@ jobs:
 
             # Run server
             # python3 manage.py runserver
-            python3 manage.py runserver 0.0.0.0:8000 --noreload
+            # python3 manage.py runserver 0.0.0.0:8000 --noreload
+            ./run_server.sh
 
             # Optional: Restart the web server or application service if needed
             # sudo systemctl restart your-service-name
