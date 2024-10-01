@@ -76,7 +76,7 @@ jobs:
             fi
             
             sudo ./kill.sh
-            
+
             # Create a new virtual environment
             python3.12 -m venv venv  # Create virtual environment
             echo "Virtual environment created."
@@ -98,7 +98,6 @@ jobs:
             python3 manage.py migrate
 
             # Run server
-            # python3 manage.py runserver
             # python3 manage.py runserver 0.0.0.0:8000 --noreload
             ./run_server.sh
 
