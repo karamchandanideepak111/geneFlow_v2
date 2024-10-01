@@ -49,7 +49,7 @@ jobs:
 
             # Move to deployment directory
             cd /home/ubuntu/geneFlow_v2 || exit
-
+            
             # Add GitHub to known_hosts to avoid SSH key verification prompts
             ssh-keyscan github.com >> ~/.ssh/known_hosts
 
@@ -74,6 +74,8 @@ jobs:
               echo "Removing existing virtual environment."
               rm -rf venv  # Remove existing virtual environment
             fi
+            
+            sudo ./kill.sh
             
             # Create a new virtual environment
             python3.12 -m venv venv  # Create virtual environment
