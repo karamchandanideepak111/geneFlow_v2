@@ -96,7 +96,8 @@ jobs:
             python3 manage.py migrate
 
             # Run server
-            python3 manage.py runserver
+            # python3 manage.py runserver
+            python3 manage.py runserver 0.0.0.0:8000 --noreload
 
             # Optional: Restart the web server or application service if needed
             # sudo systemctl restart your-service-name
