@@ -63,8 +63,16 @@ jobs:
 
             # Pull the latest changes
             cd geneFlow_v2
-            # git config pull.rebase false  # or false if you prefer merging
-            git pull origin Abi
+
+            # Fetch the latest changes and check for merge conflicts
+            git fetch origin
+            if ! git merge --no-commit origin/Abi; then
+              echo "Merge conflicts detected. Please resolve them manually."
+              exit 1
+            fi
+             
+            #git config pull.rebase false  # or false if you prefer merging
+            #git pull origin Abi
 
             # Check if Python 3.12 is installed
             if ! command -v python3.12 &> /dev/null; then
