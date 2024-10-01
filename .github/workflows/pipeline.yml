@@ -54,16 +54,8 @@ jobs:
               git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
             fi
 
-            # Stash any unstaged changes
-            #git stash push -m "Stashing changes before pull"
-
-            # Pull the latest changes with rebase
-            #git pull --rebase git@github.com:karamchandanideepak111/geneFlow_v2.git Abi
-
             # Pull the latest changes
             cd geneFlow_v2
-
-            # Configure Git to handle pulls appropriately
             git config pull.rebase false  # or false if you prefer merging
             git pull origin Abi
 
@@ -89,9 +81,6 @@ jobs:
             # Create a new virtual environment
             python3.12 -m venv venv
             echo "Virtual environment created."
-
-            # List the directory contents for debugging
-            ls -la
 
             # Activate virtual environment
             source venv/bin/activate
