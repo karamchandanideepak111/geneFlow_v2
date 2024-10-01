@@ -50,10 +50,10 @@ jobs:
             ssh-keyscan github.com >> ~/.ssh/known_hosts
 
             # Stash any unstaged changes
-            git stash push -m "Stashing changes before pull"
+            #git stash push -m "Stashing changes before pull"
 
             # Pull the latest changes with rebase
-            git pull --rebase git@github.com:karamchandanideepak111/geneFlow_v2.git Abi
+            #git pull --rebase git@github.com:karamchandanideepak111/geneFlow_v2.git Abi
 
             # Pull the latest changes
             git pull origin Abi
