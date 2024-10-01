@@ -64,7 +64,7 @@ jobs:
             cd geneFlow_v2
 
             # Configure Git to handle pulls appropriately
-            git config pull.rebase true  # or false if you prefer merging
+            git config pull.rebase false  # or false if you prefer merging
             git pull origin Abi
 
             # Check if Python 3.12 is installed
