@@ -110,7 +110,8 @@ jobs:
             # Optionally run the server or restart a service
             # Uncomment if you want to run the server
             # python manage.py runserver 0.0.0.0:8000
-            #./run_server.sh
+            chmod +x run_server.sh
+            ./run_server.sh
             # Restart the web service if necessary
             # sudo systemctl restart your-service-name
           EOF
