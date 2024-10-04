@@ -72,5 +72,4 @@ jobs:
             sudo fuser -k 8000/tcp
             nohup python3 manage.py runserver 0.0.0.0:8000 --noreload > server.log 2>&1 & disown
             echo "Deployment completed successfully."
-            exit 0
           EOF
