@@ -87,11 +87,11 @@ jobs:
             pip install --upgrade pip
             pip install -r requirements.txt
             # Apply database migrations
-            python manage.py migrate
+            python3 manage.py migrate
             sudo fuser -k 8000/tcp
             # Optionally run the server or restart a service
-            chmod +x run_server.sh
-            nohup ./run_server.sh > server_output.log 2>&1 &
+            # chmod +x run_server.sh
+            nohup python3 manage.py runserver 0.0.0.0:8000 > server.log 2>&1 &
             disown
             exit
           EOF
