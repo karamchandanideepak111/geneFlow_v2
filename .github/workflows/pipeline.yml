@@ -73,7 +73,7 @@ jobs:
             #if ! git merge --no-commit origin/Abi; then
               #echo "Merge conflicts detected. Please resolve them manually."
               #exit 1
-            fi
+            #fi
              
             #git config pull.rebase false  # or false if you prefer merging
             git pull origin Abi
