@@ -1,13 +1,13 @@
-from django.conf import settings
 import mysql.connector
 import json
 import uuid
 import pandas as pd
+from django.conf import settings
 
 class DatabaseConnection:
     @staticmethod
     def get_connection():
-        dbdetails = settings.DB_DETAILS  # Assuming you have DB details in settings
+        dbdetails = settings.DB_DETAILS  
         connection = mysql.connector.connect(
             host=dbdetails['host'],
             user=dbdetails['user'],

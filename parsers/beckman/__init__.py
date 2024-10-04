@@ -141,5 +141,5 @@ class Vicellxr:
                 **self.combined_data['result'][0]
             }
 
-    def get_combined_data(self):
+    def get_data(self):
         return json.dumps({'combined-data': self.combined_data})

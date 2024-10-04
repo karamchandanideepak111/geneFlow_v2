@@ -1,14 +1,12 @@
 from django.db import models
-from django.conf import settings
 import mysql.connector
 import json
+from django.conf import settings
 
-# Create your models here.
-class InstrumentData:
-
+class DatabaseConnection:
     @staticmethod
-    def create_instrument(data):
-        dbdetails = settings.DB_DETAILS 
+    def get_connection():
+        dbdetails = settings.DB_DETAILS  # Assuming you have DB details in settings
         connection = mysql.connector.connect(
             host=dbdetails['host'],
             user=dbdetails['user'],
@@ -16,6 +14,14 @@ class InstrumentData:
             database=dbdetails['database'],
             port=dbdetails['port']
         )
+        return connection
+    
+# Create your models here.
+class InstrumentData:
+    @staticmethod
+    def create_instrument(data):
+        dbdetails = settings.DB_DETAILS 
+        connection = DatabaseConnection.get_connection()
         cursor = connection.cursor()
 
         # Insert query for adding a new instrument into instrumentDB

@@ -61,21 +61,28 @@ def parse_file(request):
         print(f'File name: {file_name}')
         data = file_name.split('/')
         print(data)
-        print(f'Folder location: {data[0]}')
-        print(f'Instrument: {data[0]}')
+        file_info = data[0].split('_')
+        print(f'Folder location: {data[2]}')
+        vendor = file_info[0].lower()
+        print(f'Vendor: {vendor}')
+        instrument = file_info[1].replace('-', '').lower()
+        print(f'Instrument: {instrument}')
         # print(f'File Type: {inst_data}')
         # print(f'version: {inst_data}')
         # print(f'S3 Location: {s3_location}')
         # print(f'File Content: {file_content}')
-
-
+        print(f'Vendor: {vendor} : Instrument: {instrument} : File Path: {final_file_path}')
+        ob = decide_parser(vendor,instrument,final_file_path)
+        print("File Contents : ", ob.get_data())
         # # Read the file content
         # with open(final_file_path, 'r') as file:
         #     file_content = file.read()
         # ob = decide_parser(vendor,instrument,final_file_path)
         # file_content = data.get_combined_data()
 
-        
+        # Delete the file
+        os.remove(final_file_path)
+        print(f'File {final_file_path} has been deleted.')
 
         # Process the data or store it in your database
         return JsonResponse({'status': 'success', 'file_name': file_name, 'location': s3_location})#, 'content': file_content})
