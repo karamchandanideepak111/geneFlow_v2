@@ -66,15 +66,17 @@ jobs:
             # Pull the latest changes
             cd geneFlow_v2
 
+            git reset --hard HEAD
+
             # Fetch the latest changes and check for merge conflicts
-            git fetch origin
-            if ! git merge --no-commit origin/Abi; then
-              echo "Merge conflicts detected. Please resolve them manually."
-              exit 1
+            #git fetch origin
+            #if ! git merge --no-commit origin/Abi; then
+              #echo "Merge conflicts detected. Please resolve them manually."
+              #exit 1
             fi
              
             #git config pull.rebase false  # or false if you prefer merging
-            #git pull origin Abi
+            git pull origin Abi
 
             # Check if Python 3.12 is installed
             if ! command -v python3.12 &> /dev/null; then
@@ -109,12 +111,16 @@ jobs:
             # Apply database migrations
             python manage.py migrate
 
+            sudo fuser -k 8000/tcp
+
             # Optionally run the server or restart a service
             # Uncomment if you want to run the server
             # python manage.py runserver 0.0.0.0:8000
             chmod +x run_server.sh
             #./run_server.sh
             nohup ./run_server.sh > server_output.log 2>&1 &
+            disown
+            exit
             # Restart the web service if necessary
             # sudo systemctl restart your-service-name
           EOF
