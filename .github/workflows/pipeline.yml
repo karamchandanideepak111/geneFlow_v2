@@ -30,7 +30,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: test  # Run deployment only if the test job is successful
+    needs: test
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,56 +40,36 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH }}
 
-      - name: Check for merge conflicts
-        run: |
-          if git ls-files -u | grep -q '^[^ ]'; then
-            echo "Merge conflicts detected. Please resolve them before deploying."
-            exit 1
-          fi
-
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-            set -e  # Exit on any error
+            set -e
             cd /home/ubuntu
-            # Add GitHub to known_hosts to avoid SSH key verification prompts
             ssh-keyscan github.com >> ~/.ssh/known_hosts
-            # Check if the directory is a git repo; if not, clone it
             if [ ! -d "geneFlow_v2/.git" ]; then
               git clone git@github.com:karamchandanideepak111/geneFlow_v2.git
             fi
-            # Pull the latest changes forcefully
             cd geneFlow_v2
             git fetch origin
             git reset --hard origin/Abi
-            # Check if Python 3.12 is installed
             if ! command -v python3.12 &> /dev/null; then
               echo "Python 3.12 is not installed. Please install it before running this script."
               exit 1
             fi
-            # Ensure python3.12-venv is installed
             if ! dpkg -l | grep -q python3.12-venv; then
               echo "Installing python3.12-venv..."
               sudo apt update
               sudo apt install -y python3.12-venv
             fi
-            # Check if virtual environment exists, remove it if necessary
             if [ -d "venv" ]; then
-              echo "Removing existing virtual environment."
               rm -rf venv
             fi
-            # Create a new virtual environment
             python3.12 -m venv venv
-            echo "Virtual environment created."
-            
             source venv/bin/activate
-            
             pip install --upgrade pip
             pip install -r requirements.txt
-            
             python3 manage.py migrate
             sudo fuser -k 8000/tcp
-            
             nohup python3 manage.py runserver 0.0.0.0:8000 --noreload > server.log 2>&1 & disown
             echo "Deployment completed successfully."
             exit 0
