@@ -81,17 +81,15 @@ jobs:
             # Create a new virtual environment
             python3.12 -m venv venv
             echo "Virtual environment created."
-            # Activate virtual environment
+            
             source venv/bin/activate
-            # Upgrade pip and install dependencies
+            
             pip install --upgrade pip
             pip install -r requirements.txt
-            # Apply database migrations
+            
             python3 manage.py migrate
             sudo fuser -k 8000/tcp
-            # Optionally run the server or restart a service
-            # chmod +x run_server.sh
-            nohup python3 manage.py runserver 0.0.0.0:8000 > server.log 2>&1 &
-            disown
+            
+            nohup python3 manage.py runserver 0.0.0.0:8000 --noreload > server.log 2>&1 & disown
             exit
           EOF
