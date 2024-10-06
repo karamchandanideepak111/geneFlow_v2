@@ -138,7 +138,7 @@ def upload_file(request):
 
             # Upload the file to the S3 bucket
             try:
-                s3_key = f"{location}/input/{new_file_name}"
+                s3_key = f"{conn_id+"_"+location}/input/{new_file_name}"
                 
                 # Upload the file to S3
                 s3_client.put_object(

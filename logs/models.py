@@ -37,7 +37,7 @@ class LogsManager(models.Manager):
         # Close cursor and connection
         cursor.close()
         connection.close()
-
+        print("Total number of rows = ",len(rows))
         # Return the fetched data as JSON
         return json.dumps(rows, indent=4, default=str)
 

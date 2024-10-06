@@ -34,6 +34,23 @@
   --font-family-sans-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
+/* Style for the scrollable table content */
+.table-responsive {
+  max-height: 400px; /* Adjust this value to fit 10 rows depending on row height */
+  overflow-y: scroll; /* Enable vertical scrolling */
+}
+
+/* Ensure the wrapper uses the full viewport height */
+.wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+/* Keep the sidebar fixed and ensure page content scrolls separately */
+#content {
+  width: 100%;
+  overflow-y: auto; /* Makes the content scrollable if it exceeds the height */
+}
 
 
 *,

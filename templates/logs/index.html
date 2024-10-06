@@ -1,8 +1,25 @@
-<!-- Extends base.html -->
 {% extends 'index.html' %}
 
 {% block bodycontent %}
-    <h2 class="mb-4">Logs</h2>
+    <h2 class="mb-4">Client History</h2>
+
+    <!-- Filter Form -->
+    <form method="GET" action="{% url 'logs:index' %}" class="mb-4">
+        <div class="form-group">
+            <label for="connector_id">Filter by Connector ID:</label>
+            <select name="connector_id" id="connector_id" class="form-control">
+                <option value="">All Connectors</option>
+                {% for id in distinct_connector_ids %}
+                    <option value="{{ id }}" {% if connector_id == id|stringformat:"s" %}selected{% endif %}>
+                        {{ id }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <!-- Logs Table -->
     <table class="table">
         <thead>
             <tr>
@@ -18,7 +35,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for log in log_data %}
+            {% for log in page_obj %}
                 <tr>
                     <td>{{ log.connector_id }}</td>
                     <td>{{ log.instrument_name }}</td>
@@ -33,4 +50,23 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if connector_id %}&connector_id={{ connector_id }}{% endif %}">First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if connector_id %}&connector_id={{ connector_id }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if connector_id %}&connector_id={{ connector_id }}{% endif %}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if connector_id %}&connector_id={{ connector_id }}{% endif %}">Last</a>
+            {% endif %}
+        </span>
+    </div>
 {% endblock %}
